@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal - R.C. Patel Institute of Technology</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <!-- Header with Official Emblem / Logo -->
+        <div class="brand-header">
+            <div class="logo-container">
+                <img src="LOGO.PNG.png" alt="RCPIT Logo">
+            </div>
+            <h1>R. C. Patel Institute of Technology</h1>
+            <p id="portal-subtitle">Student Portal - Login</p>
+        </div>
+
+        <!-- Role Selector Tabs (Student / Parent) -->
+        <div class="role-selector">
+            <button type="button" class="role-btn active" data-role="student">Student Portal</button>
+            <button type="button" class="role-btn" data-role="parent">Parent Portal</button>
+        </div>
+
+        <!-- Login / Registration Form -->
+        <form id="auth-form" action="#" method="POST">
+            
+            <!-- Full Name (Visible only during Sign Up) -->
+            <div class="input-group" id="name-group" style="display: none;">
+                <label for="fullname" id="name-label">Student Full Name</label>
+                <input type="text" id="fullname" name="fullname" class="input-field" placeholder="Enter full name">
+            </div>
+
+            <!-- Primary ID Field -->
+            <div class="input-group" id="primary-id-group">
+                <label for="primary-id" id="primary-id-label">Username or Student ID</label>
+                <input type="text" id="primary-id" name="primary_id" class="input-field" placeholder="e.g. 2026ai001" required autocomplete="username">
+            </div>
+
+            <!-- Parent Extra Field (Linked Student ID) -->
+            <div class="input-group" id="parent-extra-group" style="display: none;">
+                <label for="linked-id">Linked Student ID</label>
+                <input type="text" id="linked-id" name="linked_id" class="input-field" placeholder="e.g. 2026ai001">
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="input-field" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+
+            <div class="form-actions-row" id="signin-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember"> Remember device
+                </label>
+                <a href="#" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <button type="submit" id="submit-btn" class="submit-btn">Sign In as Student</button>
+            
+            <!-- Toggle between Login and Account Creation -->
+            <div class="signup-prompt">
+                <span id="toggle-text">Don't have an account?</span> 
+                <a href="#" id="toggle-link" class="signup-link">Create Account</a>
+            </div>
+        </form>
+
+        <!-- Footer Help -->
+        <div class="card-footer">
+            Having trouble signing in? <a href="#">Contact IT Support</a>
+        </div>
+    </div>
+
+    <!-- Interactive script for Role and Mode switching -->
+    <script>
+        const roleBtns = document.querySelectorAll('.role-btn');
+        const portalSubtitle = document.getElementById('portal-subtitle');
+        const primaryIdLabel = document.getElementById('primary-id-label');
+        const primaryIdInput = document.getElementById('primary-id');
+        const parentExtraGroup = document.getElementById('parent-extra-group');
+        
+        const toggleLink = document.getElementById('toggle-link');
+        const toggleText = document.getElementById('toggle-text');
+        const nameGroup = document.getElementById('name-group');
+        const signinOptions = document.getElementById('signin-options');
+        const submitBtn = document.getElementById('submit-btn');
+
+        let currentRole = 'student'; 
+        let isRegistering = false;
+
+        roleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                roleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentRole = btn.getAttribute('data-role');
+                updateFormUI();
+            });
+        });
+
+        toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isRegistering = !isRegistering;
+            updateFormUI();
+        });
+
+        function updateFormUI() {
+            if (isRegistering) {
+                nameGroup.style.display = 'block';
+                signinOptions.style.display = 'none';
+                submitBtn.textContent = currentRole === 'student' ? 'Register Student Account' : 'Register Parent Account';
+                toggleText.textContent = 'Already have an account?';
+                toggleLink.textContent = 'Sign In';
+                portalSubtitle.textContent = currentRole === 'student' ? 'Student Registration Portal' : 'Parent Registration Portal';
+                
+                if (currentRole === 'parent') {
+                    primaryIdLabel.textContent = 'Parent Mobile / Email';
+                    primaryIdInput.placeholder = 'Enter parent contact info';
+                    parentExtraGroup.style.display = 'block';
+                } else {
+                    primaryIdLabel.textContent = 'Student ID / Enrollment No.';
+                    primaryIdInput.placeholder = 'e.g. 2026ai001';
+                    parentExtraGroup.style.display = 'none';
+                }
+            } else {
+                nameGroup.style.display = 'none';
+                signinOptions.style.display = 'flex';
+                submitBtn.textContent = currentRole === 'student' ? 'Sign In as Student' : 'Sign In as Parent';
+                toggleText.textContent = "Don't have an account?";
+                toggleLink.textContent = 'Create Account';
+                portalSubtitle.textContent = currentRole === 'student' ? 'Student Portal - Login' : 'Parent Portal - Login';
+
+                if (currentRole === 'parent') {
+                    primaryIdLabel.textContent = 'Parent Registered Email / Mobile';
+                    primaryIdInput.placeholder = 'Enter parent mobile or email';
+                    parentExtraGroup.style.display = 'block';
+                } else {
+                    primaryIdLabel.textContent = 'Username or Student ID';
+                    primaryIdInput.placeholder = 'e.g. 2026ai001';
+                    parentExtraGroup.style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
