@@ -19,7 +19,7 @@ An integrated, role-based hostel management automation suite engineered for **R.
            +-------------------+--------------------------+-------------------------+
                                               |
                                       [ USER INTERFACE ]
-                                    (Kunal - Frontend Lead)
+                                          Frontend 
                                               |
                                      (REST API Requests)
                                               |
@@ -31,8 +31,6 @@ An integrated, role-based hostel management automation suite engineered for **R.
                                               |
                                               v
                                     [ DATABASE STORAGE ]
-                                    (Chirag - Database Lead)
-                                (Himanshu - Co-Lead / Helper)
                                               |
                                   (Hosting & Live Deployment)
                                               |
