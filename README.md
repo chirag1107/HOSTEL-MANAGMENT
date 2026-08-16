@@ -33,6 +33,74 @@ An integrated, role-based hostel management automation suite engineered for **R.
 
 ## 🚀 Running Locally
 
-The app runs on standard web technologies:
+### Frontend:
 - **Frontend Path**: `frontend/INDEX.HTML`
 - **Local Server URL**: `http://localhost:8080` (or `http://localhost:8080/INDEX.HTML`)
+
+### Backend (Flask):
+- **Backend Path**: `backend/app.py`
+- Run: `python backend/app.py`
+
+---
+
+## 📊 Development Flow & Current Status
+
+```text
+SMART HOSTEL MANAGEMENT - DEVELOPMENT FLOW
+
+                    START
+                      │
+                      ▼
+              Project Setup
+                      │
+                      ▼
+              Frontend Created (Student & Parent Portals)
+                      │
+                      ▼
+          ┌─────────────────────┐
+          │   Backend Setup     │
+          │  Flask + Flask-CORS │
+          └─────────────────────┘
+                      │
+                      ▼
+                app.py Created
+                      │
+                      ▼
+             Flask Server Tested
+                      │
+                      ▼
+          Backend Setup Completed
+                      │
+                      ▼
+          ┌─────────────────────┐
+          │ DATABASE CREATION   │
+          │       CHIRAG        │
+          └─────────────────────┘
+                      │
+                      ▼
+          Database Tables & Fields
+                 Required
+                      │
+                      ▼
+          ┌─────────────────────┐
+          │   BACKEND APIs      │
+          │      BHAVESH        │
+          └─────────────────────┘
+                      │
+                      ▼
+        Backend + Database Integration
+                      │
+                      ▼
+          Frontend + Backend Integration
+                      │
+                      ▼
+               FINAL PROJECT
+```
+
+### Current Status:
+- ✅ **Frontend (Student & Parent Portals)** - Completed
+- ✅ **Backend Initial Setup (Flask)** - Completed
+- ⏳ **Database** - In Progress (Chirag)
+- ⏳ **Backend APIs** - Will start after database structure
+- ⏳ **Database Integration** - Pending
+- ⏳ **Frontend-Backend Integration** - Pending
