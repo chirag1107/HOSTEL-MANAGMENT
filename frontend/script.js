@@ -1,503 +1,844 @@
-// Hostel Management System - Interactive Role & Access Controller (RCPIT)
+/**
+ * RCPIT HOSTEL PORTAL - STUDENT & PARENTS MANAGEMENT SYSTEM
+ * High-performance, reactive client controller with real-time feedback & dual role portals
+ */
+
+// ==========================================================================
+// 1. GLOBAL STATE & MASTER DATA
+// ==========================================================================
+
+const APP_STATE = {
+    currentRole: 'student', // 'student' | 'parent'
+    activeStudentSection: 'section-overview',
+    activeParentSection: 'parent-section-overview',
+    currentUser: {
+        name: 'Rohit Sharma',
+        prn: '2026AI042',
+        room: 'B-304',
+        bed: '02',
+        dept: 'B.Tech AI & Data Science (Yr 3)',
+        email: 'rohit.sharma@rcpit.ac.in',
+        phone: '+91 98765 43210',
+        parentName: 'Mr. Rajesh Sharma',
+        parentPhone: '+91 94231 99880'
+    },
+    complaints: [
+        {
+            id: 'TCK-309',
+            category: 'Electrical',
+            title: 'Ceiling Fan Speed Regulator Issue',
+            room: 'Room B-304 (Bed 2)',
+            priority: 'Medium',
+            status: 'In Progress',
+            date: 'Today, 10:15 AM',
+            description: 'Fan is operating only at speed 5. Knob cannot decrease speed. Please repair regulator.',
+            assignedTo: 'Mr. Kailash (Electrician)',
+            technicianPhone: '+91 98220 54321',
+            scheduledTime: 'Today, 04:30 PM'
+        },
+        {
+            id: 'TCK-294',
+            category: 'Plumbing',
+            title: 'Bathroom Washbasin Tap Dripping',
+            room: 'Room B-304',
+            priority: 'Low',
+            status: 'Resolved',
+            date: '10 Aug 2026',
+            description: 'Continuous water drip in washbasin tap causing wastage.',
+            assignedTo: 'Mr. Santosh (Plumber)',
+            resolvedDate: '11 Aug 2026, 03:00 PM'
+        },
+        {
+            id: 'TCK-281',
+            category: 'Internet / Wi-Fi',
+            title: 'Wi-Fi Access Point Frequent Disconnects',
+            room: 'Hostel Block B (3rd Floor)',
+            priority: 'High',
+            status: 'Resolved',
+            date: '02 Aug 2026',
+            description: 'Speed drops below 1 Mbps and drops frequent ping packets.',
+            assignedTo: 'Campus IT Network Team',
+            resolvedDate: '02 Aug 2026, 06:15 PM'
+        }
+    ],
+    passes: [
+        {
+            id: 'RCPIT-GP-8842',
+            type: 'Local Evening Outing (Market)',
+            destination: 'Shirpur Market / Book Depot',
+            from: '16 Aug 2026, 05:30 PM',
+            to: '16 Aug 2026, 09:30 PM',
+            reason: 'Purchase engineering drawing sheets & reference books.',
+            status: 'Approved',
+            approvedBy: 'Dr. V. K. Patil (Chief Rector)',
+            active: true
+        },
+        {
+            id: 'RCPIT-GP-8711',
+            type: 'Weekend Home Visit',
+            destination: 'Nashik (Flat 402, Gangapur Road)',
+            from: '08 Aug 2026, 05:00 PM',
+            to: '10 Aug 2026, 08:00 PM',
+            reason: 'Sister birthday function and family gathering.',
+            status: 'Completed',
+            approvedBy: 'Dr. V. K. Patil (Chief Rector)',
+            active: false
+        }
+    ],
+    attendanceData: [
+        { date: '16 Aug 2026 (Today)', time: 'Scheduled 09:45 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Pending Tonight', remarks: 'Roll call scheduled' },
+        { date: '15 Aug 2026 (Sat)', time: '09:48 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'In-Room Verified' },
+        { date: '14 Aug 2026 (Fri)', time: '09:46 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'In-Room Verified' },
+        { date: '13 Aug 2026 (Thu)', time: '09:50 PM', mode: 'Biometric Handheld', warden: 'Prof. R. M. Deore', status: 'Present', remarks: 'In-Room Verified' },
+        { date: '12 Aug 2026 (Wed)', time: '09:44 PM', mode: 'Biometric Handheld', warden: 'Prof. R. M. Deore', status: 'Present', remarks: 'In-Room Verified' },
+        { date: '11 Aug 2026 (Tue)', time: '09:47 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'In-Room Verified' },
+        { date: '10 Aug 2026 (Mon)', time: '09:45 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'Returned from Home' },
+        { date: '09 Aug 2026 (Sun)', time: '--:--', mode: 'Official Gate Pass', warden: 'Dr. V. K. Patil', status: 'On Leave', remarks: 'Weekend Home Leave #8711' },
+        { date: '08 Aug 2026 (Sat)', time: '09:52 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'In-Room Verified' },
+        { date: '07 Aug 2026 (Fri)', time: '09:46 PM', mode: 'Biometric Handheld', warden: 'Prof. R. M. Deore', status: 'Present', remarks: 'In-Room Verified' }
+    ],
+    notices: [
+        {
+            id: 'NTC-801',
+            title: 'Hostel Night Roll Call Timings Strict Compliance',
+            category: 'urgent',
+            catLabel: 'URGENT NOTICE',
+            date: '16 Aug 2026, 04:30 PM',
+            body: 'All resident students of Block A, B & C must strictly report inside their allotted rooms by 09:45 PM for biometric roll call. Unexcused absence will trigger automated SMS alerts to registered parent contacts.',
+            author: 'Chief Rector Office, RCPIT'
+        },
+        {
+            id: 'NTC-798',
+            title: 'Sunday Special Feast Dinner Menu - Mess Wing B',
+            category: 'mess',
+            catLabel: 'MESS COMMITTEE',
+            date: '15 Aug 2026',
+            body: 'Special Dinner Feast scheduled for this Sunday from 07:30 PM to 09:45 PM. Menu includes Paneer Butter Masala, Gulab Jamun, Jeera Rice, and Sweet Kheer.',
+            author: 'Hostel Mess & Dining Committee'
+        },
+        {
+            id: 'NTC-789',
+            title: 'Mandatory Digital Gate Pass via Portal for Evening Outings',
+            category: 'general',
+            catLabel: 'GENERAL CIRCULAR',
+            date: '12 Aug 2026',
+            body: 'All local outing requests must be lodged via the Hostel Portal 1 hour before departure. Security guards at Gate 1 & 2 will scan QR passes on student smartphones before allowing exit.',
+            author: 'Campus Security & Rectorate'
+        },
+        {
+            id: 'NTC-775',
+            title: 'Annual Room Inventory & Electrical Fixture Audit',
+            category: 'general',
+            catLabel: 'ADMINISTRATION',
+            date: '05 Aug 2026',
+            body: 'Annual inspection for fans, lights, tables, and study cots is currently underway. Please submit repair tickets via your student portal for any faulty regulators or taps.',
+            author: 'Hostel Maintenance Dept'
+        }
+    ]
+};
+
+
+// ==========================================================================
+// 2. DOM INITIALIZATION & EVENT LISTENERS
+// ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const body = document.body;
-    const portalContainer = document.getElementById('portal-container');
-    const authCard = document.getElementById('auth-card');
-    const authForm = document.getElementById('auth-form');
+    initLiveClock();
+    initAuthTabs();
+    initAuthForms();
+    initSidebarNavigation();
+    initComplaintSystem();
+    initLeaveSystem();
+    initNoticesFiltering();
+    initParentConsentActions();
     
-    const roleBtns = document.querySelectorAll('.role-tab-btn');
-    const portalSubtitle = document.getElementById('portal-subtitle');
-    const portalBadge = document.getElementById('portal-badge');
-    const securityNote = document.getElementById('security-note');
-    const securityNoteText = document.getElementById('security-note-text');
-    
-    // Dynamic Input Groups
-    const nameGroup = document.getElementById('name-group');
-    const nameLabel = document.getElementById('name-label');
-    const nameInput = document.getElementById('fullname');
-    
-    const primaryIdLabel = document.getElementById('primary-id-label');
-    const primaryIdInput = document.getElementById('primary-id');
-    const primaryIdInfo = document.getElementById('primary-id-info');
-    
-    const parentExtraGroup = document.getElementById('parent-extra-group');
-    const rectorExtraGroup = document.getElementById('rector-extra-group');
-    const adminExtraGroup = document.getElementById('admin-extra-group');
-    
-    const signinOptions = document.getElementById('signin-options');
-    const submitBtn = document.getElementById('submit-btn');
-    const submitBtnText = document.getElementById('submit-btn-text');
-    
-    const signupPrompt = document.getElementById('signup-prompt');
-    const toggleLink = document.getElementById('toggle-link');
-    const toggleText = document.getElementById('toggle-text');
-    const demoAccessBtn = document.getElementById('demo-access-btn');
+    // Initial Render
+    renderAllComplaints();
+    renderAllPasses();
+    renderAttendanceTables();
+    renderNotices('all');
+});
 
-    // Dashboard Elements
-    const dashboardContainer = document.getElementById('dashboard-container');
-    const userAvatar = document.getElementById('user-avatar');
-    const userName = document.getElementById('user-name');
-    const userRoleTag = document.getElementById('user-role-tag');
-    const btnSignout = document.getElementById('btn-signout');
-    
-    // Dashboard Role Views
-    const studentDash = document.getElementById('student-dashboard-view');
-    const parentDash = document.getElementById('parent-dashboard-view');
-    const rectorDash = document.getElementById('rector-dashboard-view');
-    const adminDash = document.getElementById('admin-dashboard-view');
-    
-    // State
-    let currentRole = 'student';
-    let isRegistering = false;
 
-    // Preset Fallback Demo Data
-    const demoProfiles = {
-        student: { id: '2026AI042', name: 'Rohit Sharma', block: 'B-Block (Boys)', room: 'B-304' },
-        parent: { id: 'parent.sharma@gmail.com', name: 'Mr. Rajesh Sharma', ward: 'Rohit Sharma (2026AI042)' },
-        rector: { id: 'REC-104', name: 'Dr. V. K. Patil (Hostel Warden)', block: 'B-Block (Boys Senior)' },
-        admin: { id: 'admin@rcpit.ac.in', name: 'Chief Campus Administrator', role: 'Super Admin' }
-    };
+// ==========================================================================
+// 3. LIVE CLOCK CONTROLLER
+// ==========================================================================
 
-    // Role Switching
-    roleBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            roleBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentRole = btn.getAttribute('data-role');
-            
-            // Switch body theme attribute
-            body.setAttribute('data-active-theme', currentRole);
-            
-            if (currentRole === 'rector' || currentRole === 'admin') {
-                isRegistering = false;
-            }
-            
-            updateFormUI();
+function initLiveClock() {
+    function updateClocks() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
         });
-    });
+        document.querySelectorAll('.live-clock-target').forEach(el => {
+            el.textContent = timeStr;
+        });
+    }
+    updateClocks();
+    setInterval(updateClocks, 1000);
+}
 
-    // Toggle Sign In vs Register (Student & Parent)
-    toggleLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        isRegistering = !isRegistering;
-        updateFormUI();
-    });
 
-    // Quick Demo Direct Login Button
-    demoAccessBtn.addEventListener('click', () => {
-        launchDashboard(currentRole, true);
-    });
+// ==========================================================================
+// 4. AUTHENTICATION & ROLE SWITCHER (STUDENT / PARENTS)
+// ==========================================================================
 
-    // Form Submit Handler
-    authForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        launchDashboard(currentRole, false);
-    });
-
-    // Sign Out Handler
-    btnSignout.addEventListener('click', () => {
-        dashboardContainer.style.display = 'none';
-        authCard.style.display = 'block';
-        portalContainer.classList.remove('dashboard-active');
-        showToast('Signed out successfully. Welcome back to RCPIT Portal!', 'info');
-    });
-
-    // Update Auth Form UI
-    function updateFormUI() {
-        parentExtraGroup.style.display = 'none';
-        rectorExtraGroup.style.display = 'none';
-        adminExtraGroup.style.display = 'none';
-
-        if (currentRole === 'student') {
-            portalBadge.textContent = 'Student Portal';
-            portalSubtitle.textContent = isRegistering ? 'Student Registration Portal' : 'Student Access Portal';
-            securityNote.style.display = 'none';
-            signupPrompt.style.display = 'block';
-            
-            primaryIdLabel.textContent = 'Student ID / Enrollment No.';
-            primaryIdInfo.textContent = 'e.g. 2026AI001';
-            primaryIdInput.placeholder = 'Enter PRN or Student ID (e.g. 2026AI042)';
-
-            if (isRegistering) {
-                nameGroup.style.display = 'block';
-                nameLabel.textContent = 'Student Full Name';
-                nameInput.placeholder = 'Enter your official full name';
-                signinOptions.style.display = 'none';
-                submitBtnText.textContent = 'Register Student Account';
-                toggleText.textContent = 'Already registered?';
-                toggleLink.textContent = 'Sign In';
-            } else {
-                nameGroup.style.display = 'none';
-                signinOptions.style.display = 'flex';
-                submitBtnText.textContent = 'Sign In as Student';
-                toggleText.textContent = "Don't have an account?";
-                toggleLink.textContent = 'Create Account';
-            }
-
-        } else if (currentRole === 'parent') {
-            portalBadge.textContent = 'Parent Portal';
-            portalSubtitle.textContent = isRegistering ? 'Parent Account Registration' : 'Parent Access Portal';
-            securityNote.style.display = 'none';
-            signupPrompt.style.display = 'block';
-            parentExtraGroup.style.display = 'block';
-            
-            primaryIdLabel.textContent = 'Registered Mobile / Email';
-            primaryIdInfo.textContent = 'OTP / Alerts registered';
-            primaryIdInput.placeholder = 'e.g. parent@domain.com or 9876543210';
-
-            if (isRegistering) {
-                nameGroup.style.display = 'block';
-                nameLabel.textContent = 'Parent / Guardian Full Name';
-                nameInput.placeholder = 'Enter Parent full name';
-                signinOptions.style.display = 'none';
-                submitBtnText.textContent = 'Register Parent Account';
-                toggleText.textContent = 'Already registered?';
-                toggleLink.textContent = 'Sign In';
-            } else {
-                nameGroup.style.display = 'none';
-                signinOptions.style.display = 'flex';
-                submitBtnText.textContent = 'Sign In as Parent';
-                toggleText.textContent = "Don't have an account?";
-                toggleLink.textContent = 'Register Ward Parent';
-            }
-
-        } else if (currentRole === 'rector') {
-            portalBadge.textContent = 'Rector & Warden Portal';
-            portalSubtitle.textContent = 'Hostel Administration & Night Roll Call';
-            securityNote.style.display = 'flex';
-            securityNoteText.innerHTML = '<strong>Staff Notice:</strong> Rector and warden accounts are provisioned by college administration.';
-            signupPrompt.style.display = 'none';
-            nameGroup.style.display = 'none';
-            signinOptions.style.display = 'flex';
-            rectorExtraGroup.style.display = 'block';
-
-            primaryIdLabel.textContent = 'Rector / Staff Employee ID';
-            primaryIdInfo.textContent = 'Staff Code';
-            primaryIdInput.placeholder = 'e.g. REC-104';
-            submitBtnText.textContent = 'Sign In to Rector Panel';
-
-        } else if (currentRole === 'admin') {
-            portalBadge.textContent = 'System Admin Console';
-            portalSubtitle.textContent = 'Central Hostel Control & Master Records';
-            securityNote.style.display = 'flex';
-            securityNoteText.innerHTML = '<strong>Restricted Access:</strong> Requires master encryption key and verified admin clearance.';
-            signupPrompt.style.display = 'none';
-            nameGroup.style.display = 'none';
-            signinOptions.style.display = 'flex';
-            adminExtraGroup.style.display = 'block';
-
-            primaryIdLabel.textContent = 'Master Admin Username / Email';
-            primaryIdInfo.textContent = 'Level-1 Superadmin';
-            primaryIdInput.placeholder = 'e.g. admin@rcpit.ac.in';
-            submitBtnText.textContent = 'Authenticate Master Admin';
-        }
+function initAuthTabs() {
+    const btnStudent = document.getElementById('role-btn-student');
+    const btnParent = document.getElementById('role-btn-parent');
+    
+    if (btnStudent && btnParent) {
+        btnStudent.addEventListener('click', () => setAuthRole('student'));
+        btnParent.addEventListener('click', () => setAuthRole('parent'));
     }
 
-    // Launch Role Dashboard
-    function launchDashboard(role, isDemo = false) {
-        authCard.style.display = 'none';
-        portalContainer.classList.add('dashboard-active');
-        dashboardContainer.style.display = 'block';
+    // Demo Buttons
+    const demoStudentBtn = document.getElementById('btn-demo-student');
+    const demoParentBtn = document.getElementById('btn-demo-parent');
 
-        studentDash.style.display = 'none';
-        parentDash.style.display = 'none';
-        rectorDash.style.display = 'none';
-        adminDash.style.display = 'none';
+    if (demoStudentBtn) {
+        demoStudentBtn.addEventListener('click', () => {
+            setAuthRole('student');
+            loginToPortal('student');
+        });
+    }
 
-        const customName = nameInput && nameInput.value.trim() ? nameInput.value.trim() : null;
-        const customId = primaryIdInput && primaryIdInput.value.trim() ? primaryIdInput.value.trim() : null;
-        const defaultProfile = demoProfiles[role];
+    if (demoParentBtn) {
+        demoParentBtn.addEventListener('click', () => {
+            setAuthRole('parent');
+            loginToPortal('parent');
+        });
+    }
+}
 
-        const displayName = customName || (customId ? `User (${customId})` : defaultProfile.name);
+function setAuthRole(role) {
+    APP_STATE.currentRole = role;
+    document.body.setAttribute('data-theme', role);
+
+    const btnStudent = document.getElementById('role-btn-student');
+    const btnParent = document.getElementById('role-btn-parent');
+    const groupStudentPrn = document.getElementById('group-student-prn');
+    const groupParentId = document.getElementById('group-parent-id');
+    const groupParentWard = document.getElementById('group-parent-ward');
+    const tagBadge = document.getElementById('portal-tag-badge');
+    const tagText = document.getElementById('portal-tag-text');
+    const btnSubmit = document.getElementById('btn-login-submit');
+    const btnText = document.getElementById('btn-login-text');
+    const authSubtitle = document.getElementById('auth-subtitle');
+
+    if (role === 'student') {
+        btnStudent?.classList.add('active');
+        btnParent?.classList.remove('active');
         
-        userAvatar.textContent = displayName.charAt(0).toUpperCase();
-        userName.textContent = displayName;
-        userRoleTag.textContent = role.toUpperCase();
+        if (groupStudentPrn) groupStudentPrn.style.display = 'flex';
+        if (groupParentId) groupParentId.style.display = 'none';
+        if (groupParentWard) groupParentWard.style.display = 'none';
 
-        if (role === 'student') {
-            studentDash.style.display = 'block';
-            showToast(`Welcome back, ${displayName}! (Room B-304)`, 'success');
-        } else if (role === 'parent') {
-            parentDash.style.display = 'block';
-            showToast(`Connected to Ward: ${defaultProfile.ward}`, 'success');
-        } else if (role === 'rector') {
-            rectorDash.style.display = 'block';
-            showToast(`Warden Console: ${defaultProfile.block} Active`, 'success');
-        } else if (role === 'admin') {
-            adminDash.style.display = 'block';
-            showToast('Master Admin Console Authorized & Ready', 'success');
-        }
+        if (tagBadge) tagBadge.classList.remove('parent-mode');
+        if (tagText) tagText.textContent = 'Student Hostel Portal';
+        if (btnSubmit) btnSubmit.classList.remove('parent-submit');
+        if (btnText) btnText.textContent = 'Sign In to Student Portal';
+        if (authSubtitle) authSubtitle.textContent = 'Enter your student credentials to access hostel resident services.';
+    } else {
+        btnParent?.classList.add('active');
+        btnStudent?.classList.remove('active');
+        
+        if (groupStudentPrn) groupStudentPrn.style.display = 'none';
+        if (groupParentId) groupParentId.style.display = 'flex';
+        if (groupParentWard) groupParentWard.style.display = 'flex';
+
+        if (tagBadge) tagBadge.classList.add('parent-mode');
+        if (tagText) tagText.textContent = 'Parent Monitoring Portal';
+        if (btnSubmit) btnSubmit.classList.add('parent-submit');
+        if (btnText) btnText.textContent = 'Sign In to Parent Portal';
+        if (authSubtitle) authSubtitle.textContent = 'Enter your registered parent mobile number & ward PRN to monitor your child.';
     }
+}
 
-    // Initialize all role actions
-    setupStudentActions();
-    setupParentActions();
-    setupRectorActions();
-    setupAdminActions();
+function initAuthForms() {
+    const loginForm = document.getElementById('portal-login-form');
+    const togglePwBtn = document.getElementById('toggle-pw-btn');
+    const pwInput = document.getElementById('input-password');
 
-    // Helper: Toast Notifications
-    function showToast(message, type = 'info') {
-        let container = document.querySelector('.toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.className = 'toast-container';
-            document.body.appendChild(container);
-        }
-
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        const icon = type === 'success' ? '✅' : (type === 'danger' ? '⚠️' : 'ℹ️');
-        toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
-        container.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(10px)';
-            toast.style.transition = 'all 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, 3500);
-    }
-
-    // =========================================================================
-    // 1. STUDENT ACTIONS
-    // =========================================================================
-    function setupStudentActions() {
-        const passForm = document.getElementById('student-pass-form');
-        if (passForm) {
-            passForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const passType = document.getElementById('pass-type').value;
-                const passDate = document.getElementById('pass-date').value;
-                const reason = document.getElementById('pass-reason').value.trim();
-                
-                showToast(`Gate Pass request for "${passType}" submitted to Rector & Parent!`, 'success');
-                passForm.reset();
-            });
-        }
-
-        const complaintForm = document.getElementById('student-complaint-form');
-        if (complaintForm) {
-            complaintForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const ticketId = 'TKT-' + Math.floor(1000 + Math.random() * 9000);
-                showToast(`Complaint lodged successfully! Ticket #${ticketId} (Priority: Active)`, 'success');
-                complaintForm.reset();
-            });
-        }
-    }
-
-    // =========================================================================
-    // 2. PARENT ACTIONS
-    // =========================================================================
-    function setupParentActions() {
-        const approveLeaveBtn = document.getElementById('parent-approve-leave-btn');
-        const rejectLeaveBtn = document.getElementById('parent-reject-leave-btn');
-        const parentStatusBadge = document.getElementById('parent-leave-status');
-
-        if (approveLeaveBtn && parentStatusBadge) {
-            approveLeaveBtn.addEventListener('click', () => {
-                parentStatusBadge.className = 'status-pill approved';
-                parentStatusBadge.textContent = 'Consent Approved by Parent ✓';
-                approveLeaveBtn.style.display = 'none';
-                if (rejectLeaveBtn) rejectLeaveBtn.style.display = 'none';
-                showToast('Parent consent digitally signed & forwarded to Warden!', 'success');
-            });
-        }
-
-        if (rejectLeaveBtn && parentStatusBadge) {
-            rejectLeaveBtn.addEventListener('click', () => {
-                parentStatusBadge.className = 'status-pill rejected';
-                parentStatusBadge.textContent = 'Declined by Parent ✕';
-                approveLeaveBtn.style.display = 'none';
-                rejectLeaveBtn.style.display = 'none';
-                showToast('Leave request declined.', 'danger');
-            });
-        }
-    }
-
-    // =========================================================================
-    // 3. RECTOR ACTIONS
-    // =========================================================================
-    function setupRectorActions() {
-        // Table Approve/Reject Buttons
-        document.querySelectorAll('.rector-approve-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const row = e.target.closest('tr');
-                const studentName = row.cells[0].querySelector('strong').textContent.trim();
-                const statusPill = row.querySelector('.status-pill');
-                statusPill.className = 'status-pill approved';
-                statusPill.textContent = 'Gate Pass Issued';
-                e.target.parentElement.innerHTML = '<span style="color:#10b981; font-size:0.75rem; font-weight:700;">Approved QR ✓</span>';
-                showToast(`Gate Pass QR generated and transmitted to ${studentName}`, 'success');
-            });
+    if (togglePwBtn && pwInput) {
+        togglePwBtn.addEventListener('click', () => {
+            const isPassword = pwInput.type === 'password';
+            pwInput.type = isPassword ? 'text' : 'password';
+            togglePwBtn.textContent = isPassword ? '🙈' : '👁️';
         });
-
-        document.querySelectorAll('.rector-reject-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const row = e.target.closest('tr');
-                const studentName = row.cells[0].querySelector('strong').textContent.trim();
-                const statusPill = row.querySelector('.status-pill');
-                statusPill.className = 'status-pill rejected';
-                statusPill.textContent = 'Rejected';
-                e.target.parentElement.innerHTML = '<span style="color:#ef4444; font-size:0.75rem; font-weight:700;">Rejected ✕</span>';
-                showToast(`Leave rejected for ${studentName}`, 'danger');
-            });
-        });
-
-        // Night Attendance Quick Check
-        document.querySelectorAll('.roll-toggle-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const row = btn.closest('tr');
-                const statusPill = row.querySelector('.status-pill');
-                const studentName = row.cells[1].textContent.trim();
-
-                if (statusPill.classList.contains('present')) {
-                    statusPill.className = 'status-pill absent';
-                    statusPill.textContent = 'Absent / Unaccounted';
-                    btn.textContent = 'Mark Present';
-                    showToast(`${studentName} marked absent for night inspection`, 'danger');
-                } else {
-                    statusPill.className = 'status-pill present';
-                    statusPill.textContent = 'Present in Room';
-                    btn.textContent = 'Mark Absent';
-                    showToast(`${studentName} marked present`, 'success');
-                }
-            });
-        });
-
-        // Broadcast Notice Form
-        const noticeForm = document.getElementById('rector-notice-form');
-        if (noticeForm) {
-            noticeForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const title = document.getElementById('notice-title-input').value.trim();
-                const target = document.getElementById('notice-target').value;
-                const textarea = noticeForm.querySelector('textarea');
-                const content = textarea ? textarea.value.trim() : '';
-
-                if (!title) return;
-
-                // Prepend to student notice lists
-                const noticeList = document.querySelector('.notice-list');
-                if (noticeList) {
-                    const newItem = document.createElement('div');
-                    newItem.className = 'notice-item';
-                    newItem.style.animation = 'fadeIn 0.3s ease';
-                    newItem.innerHTML = `
-                        <div class="notice-meta">
-                            <span>Warden Office • ${target}</span>
-                            <span>Just Now</span>
-                        </div>
-                        <div class="notice-title">${title}</div>
-                        <div class="notice-body">${content || 'Important hostel notice for all residents.'}</div>
-                    `;
-                    noticeList.insertBefore(newItem, noticeList.firstChild);
-                }
-
-                showToast(`Broadcast published to ${target}: "${title}"`, 'success');
-                noticeForm.reset();
-            });
-        }
     }
 
-    // =========================================================================
-    // 4. ADMIN ACTIONS (MODALS, REGISTRY & EXPORT)
-    // =========================================================================
-    function setupAdminActions() {
-        const addStudentBtn = document.getElementById('admin-add-student-btn');
-        const allocateModal = document.getElementById('allocate-modal');
-        const closeModalBtn = document.getElementById('close-allocate-modal');
-        const cancelModalBtn = document.getElementById('cancel-allocate-btn');
-        const allocateForm = document.getElementById('allocate-student-form');
-        const studentTableBody = document.getElementById('admin-student-table-body');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            loginToPortal(APP_STATE.currentRole);
+        });
+    }
+}
 
-        // Open Modal
-        if (addStudentBtn && allocateModal) {
-            addStudentBtn.addEventListener('click', () => {
-                allocateModal.classList.add('active');
-                const fullNameField = document.getElementById('alloc-fullname');
-                if (fullNameField) fullNameField.focus();
-            });
+function loginToPortal(role) {
+    const authView = document.getElementById('auth-view');
+    const studentView = document.getElementById('student-dashboard-view');
+    const parentView = document.getElementById('parent-dashboard-view');
+
+    authView.style.display = 'none';
+
+    if (role === 'student') {
+        document.body.setAttribute('data-theme', 'student');
+        if (studentView) studentView.style.display = 'flex';
+        if (parentView) parentView.style.display = 'none';
+        switchStudentSection('section-overview');
+        showToast('Welcome back, Rohit Sharma! Logged in as Student.', 'success');
+    } else {
+        document.body.setAttribute('data-theme', 'parent');
+        if (studentView) studentView.style.display = 'none';
+        if (parentView) parentView.style.display = 'flex';
+        switchParentSection('parent-section-overview');
+        showToast('Welcome Mr. Rajesh Sharma! Accessing Ward Portal.', 'success');
+    }
+}
+
+function signOutToAuth() {
+    const authView = document.getElementById('auth-view');
+    const studentView = document.getElementById('student-dashboard-view');
+    const parentView = document.getElementById('parent-dashboard-view');
+
+    if (studentView) studentView.style.display = 'none';
+    if (parentView) parentView.style.display = 'none';
+    if (authView) authView.style.display = 'flex';
+
+    showToast('Signed out successfully.', 'info');
+}
+
+
+// ==========================================================================
+// 5. SIDEBAR NAVIGATION & ROUTING
+// ==========================================================================
+
+function initSidebarNavigation() {
+    // Student Sidebar Links
+    document.querySelectorAll('.student-nav').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-target');
+            if (target) switchStudentSection(target);
+        });
+    });
+
+    // Parent Sidebar Links
+    document.querySelectorAll('.parent-nav').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-target');
+            if (target) switchParentSection(target);
+        });
+    });
+
+    // Mobile Sidebar Toggles
+    const studentToggle = document.getElementById('sidebar-toggle-btn-student');
+    const parentToggle = document.getElementById('sidebar-toggle-btn-parent');
+    const studentSidebar = document.getElementById('student-sidebar');
+    const parentSidebar = document.getElementById('parent-sidebar');
+
+    if (studentToggle && studentSidebar) {
+        studentToggle.addEventListener('click', () => {
+            studentSidebar.classList.toggle('open');
+        });
+    }
+
+    if (parentToggle && parentSidebar) {
+        parentToggle.addEventListener('click', () => {
+            parentSidebar.classList.toggle('open');
+        });
+    }
+}
+
+function switchStudentSection(sectionId) {
+    APP_STATE.activeStudentSection = sectionId;
+
+    // Update active nav button
+    document.querySelectorAll('.student-nav').forEach(btn => {
+        if (btn.getAttribute('data-target') === sectionId) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
         }
+    });
 
-        // Close Modal Handlers
-        const closeModal = () => {
-            if (allocateModal) allocateModal.classList.remove('active');
+    // Show target section
+    document.querySelectorAll('.student-section').forEach(sec => {
+        if (sec.id === sectionId) {
+            sec.classList.add('active');
+        } else {
+            sec.classList.remove('active');
+        }
+    });
+
+    // Close mobile sidebar if open
+    document.getElementById('student-sidebar')?.classList.remove('open');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchParentSection(sectionId) {
+    APP_STATE.activeParentSection = sectionId;
+
+    // Update active nav button
+    document.querySelectorAll('.parent-nav').forEach(btn => {
+        if (btn.getAttribute('data-target') === sectionId) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Show target section
+    document.querySelectorAll('.parent-section').forEach(sec => {
+        if (sec.id === sectionId) {
+            sec.classList.add('active');
+        } else {
+            sec.classList.remove('active');
+        }
+    });
+
+    // Close mobile sidebar if open
+    document.getElementById('parent-sidebar')?.classList.remove('open');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+// ==========================================================================
+// 6. COMPLAINTS SYSTEM (SUBMIT, STATUS, FILTERS)
+// ==========================================================================
+
+function initComplaintSystem() {
+    const form = document.getElementById('complaint-submission-form');
+    const fileDropzone = document.getElementById('file-dropzone');
+    const fileInput = document.getElementById('complaint-file');
+    const filePreviewName = document.getElementById('file-preview-name');
+
+    if (fileDropzone && fileInput) {
+        fileDropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files[0]) {
+                filePreviewName.style.display = 'inline-block';
+                filePreviewName.textContent = `📷 Attached: ${fileInput.files[0].name}`;
+            }
+        });
+    }
+
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const category = document.getElementById('complaint-category').value;
+            const priority = document.getElementById('complaint-priority').value;
+            const room = document.getElementById('complaint-room').value;
+            const title = document.getElementById('complaint-title').value;
+            const description = document.getElementById('complaint-description').value;
+
+            const newTicket = {
+                id: `TCK-${Math.floor(100 + Math.random() * 900)}`,
+                category,
+                priority,
+                room,
+                title,
+                description,
+                status: 'In Progress',
+                date: 'Just Now',
+                assignedTo: 'Maintenance Dispatch Desk',
+                scheduledTime: 'Inspection scheduled within 4 hours'
+            };
+
+            APP_STATE.complaints.unshift(newTicket);
+            renderAllComplaints();
+
+            form.reset();
+            if (filePreviewName) filePreviewName.style.display = 'none';
+
+            showToast(`Complaint #${newTicket.id} lodged successfully!`, 'success');
+            switchStudentSection('section-complaint-status');
+        });
+    }
+
+    // Filter Buttons
+    document.querySelectorAll('.student-cfilter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.student-cfilter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderStudentComplaints(btn.getAttribute('data-filter'));
+        });
+    });
+
+    document.querySelectorAll('.parent-cfilter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.parent-cfilter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderParentComplaints(btn.getAttribute('data-filter'));
+        });
+    });
+
+    // Search Box
+    const searchInput = document.getElementById('search-complaints');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            renderStudentComplaints('all', query);
+        });
+    }
+}
+
+function renderAllComplaints() {
+    renderStudentComplaints('all');
+    renderParentComplaints('all');
+
+    // Update Counts
+    const all = APP_STATE.complaints.length;
+    const inprog = APP_STATE.complaints.filter(c => c.status === 'In Progress').length;
+    const resolved = APP_STATE.complaints.filter(c => c.status === 'Resolved').length;
+
+    const countAll = document.getElementById('count-all');
+    const countInprog = document.getElementById('count-inprogress');
+    const countResolved = document.getElementById('count-resolved');
+    const countBadge = document.getElementById('badge-complaints-count');
+
+    if (countAll) countAll.textContent = all;
+    if (countInprog) countInprog.textContent = inprog;
+    if (countResolved) countResolved.textContent = resolved;
+    if (countBadge) countBadge.textContent = inprog;
+}
+
+function renderStudentComplaints(filter = 'all', searchQuery = '') {
+    const container = document.getElementById('complaints-container');
+    if (!container) return;
+
+    let list = APP_STATE.complaints;
+    if (filter !== 'all') {
+        list = list.filter(c => c.status === filter);
+    }
+    if (searchQuery) {
+        list = list.filter(c => c.title.toLowerCase().includes(searchQuery) || c.id.toLowerCase().includes(searchQuery) || c.category.toLowerCase().includes(searchQuery));
+    }
+
+    if (list.length === 0) {
+        container.innerHTML = `<div class="empty-state" style="padding:2rem; text-align:center; color:var(--text-muted);">No complaint records found for this filter.</div>`;
+        return;
+    }
+
+    container.innerHTML = list.map(c => `
+        <div class="complaint-ticket-card">
+            <div class="complaint-card-top">
+                <div>
+                    <div class="complaint-id-row">
+                        <span class="complaint-id">#${c.id}</span>
+                        <span class="complaint-category-pill">${c.category}</span>
+                        <span class="priority-tag ${c.priority.toLowerCase()}">${c.priority} Priority</span>
+                    </div>
+                    <h3>${c.title}</h3>
+                </div>
+                <span class="status-pill ${c.status === 'Resolved' ? 'active-approved' : 'pending'}">
+                    ${c.status === 'Resolved' ? '✓ RESOLVED' : '⚙️ IN PROGRESS'}
+                </span>
+            </div>
+            <p class="complaint-desc">${c.description}</p>
+            <div class="complaint-card-meta">
+                <div class="meta-field">
+                    <label>Location</label>
+                    <span>${c.room}</span>
+                </div>
+                <div class="meta-field">
+                    <label>Assigned Staff</label>
+                    <span>${c.assignedTo || 'Technician Assigned'}</span>
+                </div>
+                <div class="meta-field">
+                    <label>Lodged On</label>
+                    <span>${c.date}</span>
+                </div>
+            </div>
+            <div class="complaint-card-footer">
+                <span class="timeline-note">${c.status === 'Resolved' ? `Resolved on ${c.resolvedDate || '11 Aug 2026'}` : `Expected Resolution: ${c.scheduledTime || 'Within 24 hours'}`}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderParentComplaints(filter = 'all') {
+    const container = document.getElementById('parent-complaints-container');
+    if (!container) return;
+
+    let list = APP_STATE.complaints;
+    if (filter !== 'all') {
+        list = list.filter(c => c.status === filter);
+    }
+
+    container.innerHTML = list.map(c => `
+        <div class="complaint-ticket-card" style="border-left: 3px solid #10b981;">
+            <div class="complaint-card-top">
+                <div>
+                    <div class="complaint-id-row">
+                        <span class="complaint-id" style="color:#10b981;">#${c.id}</span>
+                        <span class="complaint-category-pill">${c.category}</span>
+                    </div>
+                    <h3>${c.title}</h3>
+                </div>
+                <span class="status-pill ${c.status === 'Resolved' ? 'active-approved' : 'pending'}">
+                    ${c.status === 'Resolved' ? '✓ RESOLVED' : '⚙️ IN PROGRESS'}
+                </span>
+            </div>
+            <p class="complaint-desc">${c.description}</p>
+            <div class="complaint-card-meta">
+                <div class="meta-field">
+                    <label>Room Fixture</label>
+                    <span>${c.room}</span>
+                </div>
+                <div class="meta-field">
+                    <label>Assigned Staff</label>
+                    <span>${c.assignedTo || 'Maintenance Desk'}</span>
+                </div>
+                <div class="meta-field">
+                    <label>Reported On</label>
+                    <span>${c.date}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+
+// ==========================================================================
+// 7. LEAVE REQUEST & GATE PASSES
+// ==========================================================================
+
+function initLeaveSystem() {
+    const leaveForm = document.getElementById('leave-request-form');
+
+    if (leaveForm) {
+        // Set default dates
+        const now = new Date();
+        const returnDate = new Date(now.getTime() + 4 * 60 * 60 * 1000); // 4 hours later
+
+        const formatIso = (d) => {
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
         };
 
-        if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-        if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
-        
-        if (allocateModal) {
-            allocateModal.addEventListener('click', (e) => {
-                if (e.target === allocateModal) closeModal();
-            });
-        }
+        const fromInput = document.getElementById('leave-from-date');
+        const toInput = document.getElementById('leave-to-date');
 
-        // Handle Allocate Form Submission
-        if (allocateForm) {
-            allocateForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const name = document.getElementById('alloc-fullname').value.trim() || 'Yash Patil';
-                const prn = document.getElementById('alloc-prn').value.trim() || '2026AI089';
-                const dept = document.getElementById('alloc-dept').value;
-                const year = document.getElementById('alloc-year').value;
-                const block = document.getElementById('alloc-block').value;
-                const room = document.getElementById('alloc-room').value.trim() || 'Room 312';
-                const fee = document.getElementById('alloc-fee').value;
+        if (fromInput) fromInput.value = formatIso(now);
+        if (toInput) toInput.value = formatIso(returnDate);
 
-                // Create new row
-                if (studentTableBody) {
-                    const newRow = document.createElement('tr');
-                    newRow.style.animation = 'fadeIn 0.4s ease';
-                    newRow.style.background = 'rgba(139, 92, 246, 0.15)';
-                    
-                    const feeClass = fee.includes('Paid') ? 'paid' : (fee.includes('Due') ? 'unpaid' : 'pending');
-                    
-                    newRow.innerHTML = `
-                        <td><strong>${prn}</strong></td>
-                        <td>${name}</td>
-                        <td>${dept} (${year})</td>
-                        <td>${block} (${room})</td>
-                        <td><span class="status-pill ${feeClass}">${fee}</span></td>
-                        <td><button type="button" class="btn-action-sm">Edit</button></td>
-                    `;
-                    
-                    studentTableBody.insertBefore(newRow, studentTableBody.firstChild);
-                }
+        leaveForm.addEventListener('submit', (e) => {
+            e.preventDefault();
 
-                allocateForm.reset();
-                closeModal();
-                showToast(`Student ${name} (${prn}) successfully allocated to ${block} (${room})!`, 'success');
-            });
-        }
+            const type = document.getElementById('leave-type').value;
+            const destination = document.getElementById('leave-destination').value;
+            const reason = document.getElementById('leave-reason').value;
 
-        // Master CSV Export Simulation
-        const exportReportBtn = document.getElementById('admin-export-report-btn');
-        if (exportReportBtn) {
-            exportReportBtn.addEventListener('click', () => {
-                const csvData = "PRN,Name,Department,Block,Room,FeeStatus\n"
-                    + "2026AI042,Rohit Sharma,B.Tech AI & DS,B-Block,Room 304,Paid\n"
-                    + "2026CS019,Priya Mahajan,B.Tech Comp,C-Block,Room 108,Paid\n"
-                    + "2026ME005,Kiran Chaudhari,B.Tech Mech,A-Block,Room 201,Due\n"
-                    + "2026IT077,Tanmay Sonawane,B.Tech IT,B-Block,Room 115,Paid\n";
-                
-                const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.setAttribute('href', url);
-                link.setAttribute('download', 'RCPIT_Hostel_Master_Registry_2026.csv');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+            const newPass = {
+                id: `RCPIT-GP-${Math.floor(1000 + Math.random() * 9000)}`,
+                type,
+                destination,
+                from: 'Today, 05:30 PM',
+                to: 'Today, 09:30 PM',
+                reason,
+                status: 'Approved',
+                approvedBy: 'Dr. V. K. Patil (Chief Rector)',
+                active: true
+            };
 
-                showToast('Master Hostel Registry exported: RCPIT_Hostel_Master_Registry_2026.csv', 'success');
-            });
-        }
+            APP_STATE.passes.unshift(newPass);
+            renderAllPasses();
+            showToast(`Leave pass #${newPass.id} submitted & approved!`, 'success');
+        });
+    }
+}
+
+function renderAllPasses() {
+    const studentContainer = document.getElementById('passes-container');
+    const parentContainer = document.getElementById('parent-passes-container');
+
+    const html = APP_STATE.passes.map(p => `
+        <div class="pass-card ${p.status === 'Approved' ? 'approved' : ''}">
+            <div class="pass-card-head">
+                <span class="pass-id">#${p.id}</span>
+                <span class="pass-badge ${p.status.toLowerCase()}">${p.status.toUpperCase()}</span>
+            </div>
+            <h4>${p.type}</h4>
+            <div class="pass-meta-grid">
+                <div>
+                    <span class="p-lbl">Destination</span>
+                    <span class="p-val">${p.destination}</span>
+                </div>
+                <div>
+                    <span class="p-lbl">Valid Return Time</span>
+                    <span class="p-val" style="color:var(--accent-rose); font-weight:700;">${p.to}</span>
+                </div>
+                <div>
+                    <span class="p-lbl">Authorized By</span>
+                    <span class="p-val">${p.approvedBy}</span>
+                </div>
+                <div>
+                    <span class="p-lbl">Security Scan</span>
+                    <span class="p-val" style="color:var(--accent-emerald);">QR Verified</span>
+                </div>
+            </div>
+            <p class="pass-sub"><strong>Reason:</strong> ${p.reason}</p>
+        </div>
+    `).join('');
+
+    if (studentContainer) studentContainer.innerHTML = html;
+    if (parentContainer) parentContainer.innerHTML = html;
+}
+
+
+// ==========================================================================
+// 8. PARENT DIGITAL CONSENT ACTIONS
+// ==========================================================================
+
+function initParentConsentActions() {
+    const btnApprove = document.getElementById('btn-parent-consent-approve');
+    const btnReject = document.getElementById('btn-parent-consent-reject');
+    const badge = document.getElementById('consent-status-badge');
+    const actionBtns = document.getElementById('consent-action-buttons');
+
+    if (btnApprove) {
+        btnApprove.addEventListener('click', () => {
+            if (badge) {
+                badge.className = 'status-pill active-approved';
+                badge.textContent = '✓ PARENT CONSENT GRANTED';
+            }
+            if (actionBtns) {
+                actionBtns.innerHTML = `
+                    <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:0.6rem 1rem; border-radius:var(--radius-md); color:#10b981; font-weight:700; font-size:0.85rem;">
+                        ✓ Digital parent consent recorded on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}. Pass forwarded to Rector for gate pass generation.
+                    </div>
+                `;
+            }
+            showToast('Digital parent consent granted for weekend leave!', 'success');
+        });
     }
 
-    // Initialize Default State
-    updateFormUI();
-});
+    if (btnReject) {
+        btnReject.addEventListener('click', () => {
+            if (badge) {
+                badge.className = 'status-pill absent';
+                badge.textContent = '✕ CONSENT DECLINED BY PARENT';
+            }
+            if (actionBtns) {
+                actionBtns.innerHTML = `
+                    <div style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); padding:0.6rem 1rem; border-radius:var(--radius-md); color:#fca5a5; font-weight:700; font-size:0.85rem;">
+                        ✕ Leave request declined. Notification sent to student Rohit Sharma.
+                    </div>
+                `;
+            }
+            showToast('Leave request declined.', 'warn');
+        });
+    }
+}
+
+
+// ==========================================================================
+// 9. ATTENDANCE TABLES
+// ==========================================================================
+
+function renderAttendanceTables() {
+    const studentTbody = document.getElementById('student-attendance-tbody');
+    const parentTbody = document.getElementById('parent-attendance-tbody');
+
+    const html = APP_STATE.attendanceData.map(row => `
+        <tr>
+            <td><strong>${row.date}</strong></td>
+            <td>${row.time}</td>
+            <td><span style="font-family:var(--font-mono); font-size:0.75rem;">${row.mode}</span></td>
+            <td>${row.warden}</td>
+            <td>
+                <span class="status-pill ${row.status === 'Present' ? 'present' : row.status === 'On Leave' ? 'on-leave' : 'pending'}">
+                    ${row.status}
+                </span>
+            </td>
+            <td>${row.remarks}</td>
+        </tr>
+    `).join('');
+
+    if (studentTbody) studentTbody.innerHTML = html;
+    if (parentTbody) parentTbody.innerHTML = html;
+}
+
+
+// ==========================================================================
+// 10. NOTICES & ALERTS
+// ==========================================================================
+
+function initNoticesFiltering() {
+    document.querySelectorAll('.student-nfilter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.student-nfilter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderNotices(btn.getAttribute('data-notice-cat'));
+        });
+    });
+
+    document.querySelectorAll('.parent-nfilter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.parent-nfilter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderNotices(btn.getAttribute('data-notice-cat'));
+        });
+    });
+}
+
+function renderNotices(category = 'all') {
+    const studentContainer = document.getElementById('student-notices-container');
+    const parentContainer = document.getElementById('parent-notices-container');
+
+    let list = APP_STATE.notices;
+    if (category !== 'all') {
+        list = list.filter(n => n.category === category);
+    }
+
+    const html = list.map(n => `
+        <div class="notice-detail-card ${n.category === 'urgent' ? 'urgent' : ''}">
+            <div class="notice-badge-row">
+                <span class="badge-${n.category}">${n.catLabel}</span>
+                <span class="notice-time-pill">${n.date}</span>
+            </div>
+            <h3>${n.title}</h3>
+            <p class="notice-body-full">${n.body}</p>
+            <div class="notice-card-footer">
+                <span class="authority-tag">Issued by: <strong>${n.author}</strong></span>
+                <span>ID: ${n.id}</span>
+            </div>
+        </div>
+    `).join('');
+
+    if (studentContainer) studentContainer.innerHTML = html;
+    if (parentContainer) parentContainer.innerHTML = html;
+}
+
+
+// ==========================================================================
+// 11. TOAST NOTIFICATION UTILITY
+// ==========================================================================
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    let icon = 'ℹ️';
+    if (type === 'success') icon = '✅';
+    if (type === 'warn') icon = '⚠️';
+
+    toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
+}

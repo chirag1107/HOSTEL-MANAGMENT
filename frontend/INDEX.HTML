@@ -3,958 +3,2009 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hostel Management Portal - R. C. Patel Institute of Technology</title>
+    <title>RCPIT Hostel Portal - Student & Parent Management | R. C. Patel Institute of Technology</title>
     <link rel="stylesheet" href="STYLE.CSS">
-    <!-- Google Font -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="script.js" defer></script>
 </head>
-<body data-active-theme="student">
+<body data-theme="student">
 
-    <div class="portal-container" id="portal-container">
-        
-        <!-- ================= AUTHENTICATION CARD ================= -->
-        <div class="auth-card" id="auth-card">
-            <!-- Brand Header -->
-            <div class="brand-header">
-                <div class="logo-container">
-                    <img src="LOGO.PNG.png" alt="RCPIT Official Logo">
-                </div>
-                <h1>R. C. Patel Institute of Technology</h1>
-                <div class="portal-badge" id="portal-badge">Student Portal</div>
-                <p id="portal-subtitle" style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Student Access & Hostel Management</p>
-            </div>
+    <!-- Ambient Lighting Background -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
 
-            <!-- 4-Role Selector Tabs -->
-            <div class="role-grid">
-                <button type="button" class="role-tab-btn active" data-role="student" id="role-student">
-                    <span class="role-icon">🎓</span>
-                    <span>Student</span>
-                </button>
-                <button type="button" class="role-tab-btn" data-role="parent" id="role-parent">
-                    <span class="role-icon">👨‍👩‍👦</span>
-                    <span>Parent</span>
-                </button>
-                <button type="button" class="role-tab-btn" data-role="rector" id="role-rector">
-                    <span class="role-icon">🛡️</span>
-                    <span>Rector</span>
-                </button>
-                <button type="button" class="role-tab-btn" data-role="admin" id="role-admin">
-                    <span class="role-icon">⚡</span>
-                    <span>Admin</span>
-                </button>
-            </div>
+    <!-- MAIN APP CONTAINER -->
+    <div class="app-container" id="app-container">
 
-            <!-- Contextual Security / Staff Note -->
-            <div class="security-note" id="security-note" style="display: none;">
-                <span style="font-size: 1rem;">🔒</span>
-                <span id="security-note-text"><strong>Staff Notice:</strong> Accounts are provisioned by college administration.</span>
-            </div>
-
-            <!-- Login / Registration Form -->
-            <form id="auth-form" action="#" method="POST">
-                
-                <!-- Full Name (Visible only during Sign Up) -->
-                <div class="input-group" id="name-group" style="display: none;">
-                    <label for="fullname" id="name-label">Full Name</label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">👤</span>
-                        <input type="text" id="fullname" name="fullname" class="input-field" placeholder="Enter full name">
+        <!-- ============================================================= -->
+        <!-- 1. AUTHENTICATION / LOGIN VIEW (STUDENT & PARENTS)            -->
+        <!-- ============================================================= -->
+        <div class="auth-view" id="auth-view">
+            <div class="auth-card">
+                <!-- Header / Logo -->
+                <div class="auth-brand">
+                    <div class="logo-wrapper">
+                        <img src="LOGO.PNG.png" alt="RCPIT Official Logo" id="auth-logo">
                     </div>
-                </div>
-
-                <!-- Primary ID Field -->
-                <div class="input-group" id="primary-id-group">
-                    <label for="primary-id">
-                        <span id="primary-id-label">Student ID / Enrollment No.</span>
-                        <span class="badge-info" id="primary-id-info">e.g. 2026AI001</span>
-                    </label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">🆔</span>
-                        <input type="text" id="primary-id" name="primary_id" class="input-field" placeholder="Enter PRN or Student ID" required autocomplete="username">
+                    <h1>R. C. Patel Institute of Technology</h1>
+                    <div class="portal-tag" id="portal-tag-badge">
+                        <span class="tag-dot"></span> <span id="portal-tag-text">Student Hostel Portal</span>
                     </div>
+                    <p class="auth-subtitle" id="auth-subtitle">Select your portal role below to access hostel resident services.</p>
                 </div>
 
-                <!-- Parent Extra Field (Linked Student ID) -->
-                <div class="input-group" id="parent-extra-group" style="display: none;">
-                    <label for="linked-id">
-                        <span>Linked Ward's Student ID</span>
-                        <span class="badge-info">Enrolled Student</span>
-                    </label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">🔗</span>
-                        <input type="text" id="linked-id" name="linked_id" class="input-field" placeholder="e.g. 2026AI042">
-                    </div>
-                </div>
-
-                <!-- Rector Extra Field (Assigned Hostel Block) -->
-                <div class="input-group" id="rector-extra-group" style="display: none;">
-                    <label for="rector-block">
-                        <span>Assigned Hostel Wing / Block</span>
-                        <span class="badge-info">Jurisdiction</span>
-                    </label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">🏢</span>
-                        <select id="rector-block" name="rector_block" class="select-field">
-                            <option value="A-Block">A-Block (Boys Senior Wing)</option>
-                            <option value="B-Block" selected>B-Block (Boys Junior Wing)</option>
-                            <option value="C-Block">C-Block (Girls Campus Hostel)</option>
-                            <option value="All-Blocks">Chief Warden (All Blocks)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Admin Extra Field (Security Master PIN) -->
-                <div class="input-group" id="admin-extra-group" style="display: none;">
-                    <label for="admin-pin">
-                        <span>Master Security Key / Token</span>
-                        <span class="badge-info">2FA Key</span>
-                    </label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">🔑</span>
-                        <input type="password" id="admin-pin" name="admin_pin" class="input-field" placeholder="Enter Master 2FA PIN (e.g. 882190)">
-                    </div>
-                </div>
-
-                <!-- Password Field -->
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">🔒</span>
-                        <input type="password" id="password" name="password" class="input-field" placeholder="Enter your password" required autocomplete="current-password">
-                    </div>
-                </div>
-
-                <!-- Form Options Row -->
-                <div class="form-actions-row" id="signin-options">
-                    <label class="remember-me">
-                        <input type="checkbox" name="remember" checked> Remember session
-                    </label>
-                    <a href="#" class="forgot-link">Forgot password?</a>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" id="submit-btn" class="submit-btn">
-                    <span>⚡</span>
-                    <span id="submit-btn-text">Sign In as Student</span>
-                </button>
-                
-                <!-- Quick Demo Direct Access -->
-                <div class="demo-access-bar">
-                    <button type="button" class="demo-access-btn" id="demo-access-btn">
-                        <span>🚀</span>
-                        <span>Direct Demo Access (Instant View)</span>
+                <!-- 2-Role Selector (Student / Parent) -->
+                <div class="auth-role-tabs">
+                    <button type="button" class="role-switch-btn active" data-role="student" id="role-btn-student">
+                        <span class="role-icon">🎓</span>
+                        <span class="role-title">Student Portal</span>
+                    </button>
+                    <button type="button" class="role-switch-btn" data-role="parent" id="role-btn-parent">
+                        <span class="role-icon">👨‍👩‍👦</span>
+                        <span class="role-title">Parent Portal</span>
                     </button>
                 </div>
 
-
-                <!-- Toggle between Login and Account Creation (Student/Parent only) -->
-                <div class="signup-prompt" id="signup-prompt">
-                    <span id="toggle-text">Don't have an account?</span> 
-                    <a href="#" id="toggle-link" class="signup-link">Create Account</a>
+                <!-- Alert Message Box -->
+                <div class="auth-alert" id="auth-alert" style="display: none;">
+                    <span class="alert-icon">⚠️</span>
+                    <span class="alert-text" id="auth-alert-text">Invalid Credentials</span>
                 </div>
-            </form>
 
-            <!-- Footer Help -->
-            <div class="card-footer">
-                Having trouble signing in? <a href="#">Contact RCPIT IT Helpdesk</a>
+                <!-- Unified Login Form -->
+                <form id="portal-login-form" class="auth-form" autocomplete="on">
+                    
+                    <!-- Student Field: PRN -->
+                    <div class="form-group" id="group-student-prn">
+                        <label for="input-student-prn">
+                            <span>Student PRN / Enrollment ID</span>
+                            <span class="badge-hint">e.g. 2026AI042</span>
+                        </label>
+                        <div class="input-container">
+                            <span class="input-icon">🆔</span>
+                            <input type="text" id="input-student-prn" name="student_prn" placeholder="Enter PRN (e.g. 2026AI042)" value="2026AI042" autocomplete="username">
+                        </div>
+                    </div>
+
+                    <!-- Parent Field: Mobile / Email -->
+                    <div class="form-group" id="group-parent-id" style="display: none;">
+                        <label for="input-parent-id">
+                            <span>Registered Parent Mobile / Email</span>
+                            <span class="badge-hint">e.g. 9423199880</span>
+                        </label>
+                        <div class="input-container">
+                            <span class="input-icon">📱</span>
+                            <input type="text" id="input-parent-id" name="parent_id" placeholder="Enter registered phone or email" value="9423199880">
+                        </div>
+                    </div>
+
+                    <!-- Parent Field: Child PRN -->
+                    <div class="form-group" id="group-parent-ward" style="display: none;">
+                        <label for="input-parent-ward">
+                            <span>Linked Ward's Student PRN</span>
+                            <span class="badge-hint">e.g. 2026AI042</span>
+                        </label>
+                        <div class="input-container">
+                            <span class="input-icon">🔗</span>
+                            <input type="text" id="input-parent-ward" name="parent_ward" placeholder="Enter Ward PRN (e.g. 2026AI042)" value="2026AI042">
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label for="input-password">Password</label>
+                            <a href="#" class="forgot-link" id="forgot-pass-btn">Forgot?</a>
+                        </div>
+                        <div class="input-container">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="input-password" name="password" placeholder="Enter your password" value="hostel123" required autocomplete="current-password">
+                            <button type="button" class="btn-toggle-pw" id="toggle-pw-btn" title="Toggle password visibility">👁️</button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember-box">
+                            <input type="checkbox" id="remember-me" checked>
+                            <span>Keep me signed in</span>
+                        </label>
+                        <span class="security-badge">🔒 256-Bit SSL Encrypted</span>
+                    </div>
+
+                    <button type="submit" class="btn-primary-auth" id="btn-login-submit">
+                        <span class="btn-text" id="btn-login-text">Sign In to Student Portal</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </form>
+
+                <!-- Quick One-Click Demo Access -->
+                <div class="demo-auth-divider">
+                    <span>OR INSTANT DEMO</span>
+                </div>
+                <div class="demo-btn-grid">
+                    <button type="button" class="btn-demo-quick" id="btn-demo-student">
+                        <span>⚡ Demo Student Login</span>
+                    </button>
+                    <button type="button" class="btn-demo-quick parent" id="btn-demo-parent">
+                        <span>👨‍👩‍👦 Demo Parent Login</span>
+                    </button>
+                </div>
+
+                <!-- Auth Footer -->
+                <div class="auth-footer">
+                    <p>Having trouble signing in? <a href="#" id="helpdesk-link">Contact Hostel Rector / IT Helpdesk</a></p>
+                    <p class="campus-sub">Campus Hostel Wing B • Shirpur Campus</p>
+                </div>
             </div>
         </div>
 
 
-        <!-- ================= ROLE-BASED DASHBOARDS (AFTER LOGIN) ================= -->
-        <div class="dashboard-container" id="dashboard-container">
-            
-            <!-- Dashboard Top Nav Header -->
-            <header class="dash-header">
-                <div class="dash-brand">
-                    <div class="dash-brand-logo">
-                        <img src="LOGO.PNG.png" alt="RCPIT Logo">
-                    </div>
-                    <div class="dash-title-group">
-                        <h2>R. C. Patel Institute of Technology</h2>
-                        <p>Integrated Hostel Management & Resident Automation System</p>
-                    </div>
-                </div>
-                <div class="dash-user-controls">
-                    <div class="user-profile-badge">
-                        <div class="user-avatar" id="user-avatar">R</div>
-                        <div class="user-info-text">
-                            <span class="user-name" id="user-name">Rohit Sharma</span>
-                            <span class="user-role-tag" id="user-role-tag">STUDENT</span>
+        <!-- ============================================================= -->
+        <!-- 2. STUDENT DASHBOARD APPLICATION VIEW (9 MODULES)             -->
+        <!-- ============================================================= -->
+        <div class="dashboard-view" id="student-dashboard-view" style="display: none;">
+
+            <!-- Top Header Bar -->
+            <header class="app-header">
+                <div class="header-left">
+                    <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn-student" aria-label="Toggle navigation">
+                        <span>☰</span>
+                    </button>
+                    <div class="brand-inline">
+                        <img src="LOGO.PNG.png" alt="RCPIT Logo" class="header-logo">
+                        <div class="brand-text-block">
+                            <h2>RCPIT STUDENT HOSTEL PORTAL</h2>
+                            <span>R. C. Patel Institute of Technology, Shirpur</span>
                         </div>
                     </div>
-                    <button type="button" class="btn-signout" id="btn-signout">
-                        <span>🚪</span>
-                        <span>Sign Out / Switch</span>
-                    </button>
+                </div>
+
+                <div class="header-right">
+                    <!-- Live Time & Status -->
+                    <div class="live-status-card">
+                        <div class="status-indicator online"></div>
+                        <div class="live-text">
+                            <span class="status-label">Hostel Status: <strong>In-Campus</strong></span>
+                            <span class="clock-display live-clock-target">--:--:--</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Notifications -->
+                    <div class="header-action-wrapper">
+                        <button type="button" class="btn-icon-head" onclick="switchStudentSection('section-notices')" title="Notices & Alerts">
+                            <span class="icon">🔔</span>
+                            <span class="notif-badge">3</span>
+                        </button>
+                    </div>
+
+                    <!-- User Profile Quick Card -->
+                    <div class="user-profile-menu">
+                        <div class="user-avatar-circle student-avatar">RS</div>
+                        <div class="user-meta-header">
+                            <span class="user-meta-name">Rohit Sharma</span>
+                            <span class="user-meta-role">PRN: 2026AI042 • Room B-304</span>
+                        </div>
+                        <button type="button" class="btn-signout" onclick="signOutToAuth()" title="Sign Out">
+                            <span>🚪</span>
+                            <span class="signout-text">Logout</span>
+                        </button>
+                    </div>
                 </div>
             </header>
 
-            <!-- ------------------------------------------------------------- -->
-            <!-- 1. STUDENT DASHBOARD VIEW -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="dashboard-view" id="student-dashboard-view">
-                <!-- Stats Matrix -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Allocated Room</span>
-                            <h3>Room B-304</h3>
-                            <small style="color:var(--accent-student); font-weight:600;">Bed #2 (2nd Floor)</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:var(--accent-student);">🛏️</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Mess Smart Token</span>
-                            <h3>Active Card</h3>
-                            <small style="color:#10b981; font-weight:600;">Token #8821 • Verified</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:#10b981;">🍽️</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Hostel Fee Status</span>
-                            <h3>₹65,000 Paid</h3>
-                            <small style="color:#10b981; font-weight:600;">Cleared for Academic Year</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:#38bdf8;">💳</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Gate Pass Status</span>
-                            <h3>1 Approved</h3>
-                            <small style="color:var(--accent-student); font-weight:600;">Valid till 10:00 PM</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:var(--accent-student);">🎟️</div>
-                    </div>
-                </div>
+            <!-- Main App Body (Sidebar + Content Canvas) -->
+            <div class="app-main-layout">
 
-                <!-- Two-Column Student Content Grid -->
-                <div class="dashboard-content-grid">
-                    <div class="dash-panel-col">
-                        <!-- Quick Leave Pass Generator -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>📝</span> Request Gate / Night-Out Pass</h3>
-                                <span class="status-pill present">Auto-Sends to Rector & Parent</span>
-                            </div>
-                            <form id="student-pass-form" class="quick-form">
-                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
-                                    <div class="input-group" style="margin-bottom:0.5rem;">
-                                        <label for="pass-type">Pass Type</label>
-                                        <select id="pass-type" class="select-field" style="padding-left:1rem;">
-                                            <option value="Evening Outing (Local)">Evening Outing (Local Market)</option>
-                                            <option value="Night Out Pass">Night Out (Home Visit)</option>
-                                            <option value="Emergency Medical Pass">Emergency Medical Pass</option>
-                                            <option value="Academic Project Work">Academic / Lab Project Late Pass</option>
-                                        </select>
-                                    </div>
-                                    <div class="input-group" style="margin-bottom:0.5rem;">
-                                        <label for="pass-date">Return Expected Date & Time</label>
-                                        <input type="datetime-local" id="pass-date" class="input-field" style="padding-left:1rem;" value="2026-08-16T21:30">
-                                    </div>
-                                </div>
-                                <div class="input-group" style="margin-bottom:0.75rem;">
-                                    <label for="pass-reason">Reason & Destination Details</label>
-                                    <textarea id="pass-reason" placeholder="State reason, destination address, and emergency contact number..." required></textarea>
-                                </div>
-                                <button type="submit" class="submit-btn" style="padding:0.65rem 1rem;">Submit Pass Request to Rector</button>
-                            </form>
+                <!-- SIDEBAR NAVIGATION -->
+                <aside class="app-sidebar" id="student-sidebar">
+                    <div class="student-mini-profile">
+                        <div class="mini-avatar-wrap">
+                            <div class="mini-avatar student-avatar">RS</div>
+                            <span class="mini-badge-verified" title="Verified Resident">✓</span>
                         </div>
-
-                        <!-- Maintenance & Grievance Lodging -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>🛠️</span> Report Room Maintenance / Complaint</h3>
-                                <button type="button" class="btn-action-sm">View Ticket History (3)</button>
-                            </div>
-                            <form id="student-complaint-form" class="quick-form">
-                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
-                                    <div class="input-group" style="margin-bottom:0.5rem;">
-                                        <label for="issue-category">Issue Category</label>
-                                        <select id="issue-category" class="select-field" style="padding-left:1rem;">
-                                            <option>Electrical (Fan, Tube light, Switch)</option>
-                                            <option>Plumbing (Tap, Bathroom, Geyser)</option>
-                                            <option>Wi-Fi & LAN Network</option>
-                                            <option>Carpentry & Bed Fixtures</option>
-                                        </select>
-                                    </div>
-                                    <div class="input-group" style="margin-bottom:0.5rem;">
-                                        <label for="issue-urgency">Priority Level</label>
-                                        <select id="issue-urgency" class="select-field" style="padding-left:1rem;">
-                                            <option>Normal (Within 24 Hours)</option>
-                                            <option>Urgent (Within 4 Hours)</option>
-                                            <option>Emergency (Immediate)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <textarea placeholder="Describe the issue in your room..." required></textarea>
-                                <button type="submit" class="btn-action-sm" style="align-self:flex-start; padding:0.6rem 1.2rem; background:var(--accent-student); color:#050811; font-weight:700;">Lodge Maintenance Ticket</button>
-                            </form>
-                        </div>
+                        <h4>Rohit Sharma</h4>
+                        <p class="mini-prn">PRN: 2026AI042</p>
+                        <span class="mini-wing-pill">Block B (Boys) • Bed 02</span>
                     </div>
 
-                    <!-- Right Column: Notices & Weekly Mess Menu -->
-                    <div class="dash-panel-col">
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>📢</span> Hostel Notice Board</h3>
-                            </div>
-                            <div class="notice-list">
-                                <div class="notice-item">
-                                    <div class="notice-meta">
-                                        <span>Rector Office</span>
-                                        <span>Today, 6:30 PM</span>
-                                    </div>
-                                    <div class="notice-title">Hostel Night Roll Call Timings</div>
-                                    <div class="notice-body">All residents must be in their respective rooms for the 9:45 PM biometric attendance by the warden.</div>
-                                </div>
-                                <div class="notice-item">
-                                    <div class="notice-meta">
-                                        <span>Mess Committee</span>
-                                        <span>Yesterday</span>
-                                    </div>
-                                    <div class="notice-title">Sunday Special Dinner Menu</div>
-                                    <div class="notice-body">Special feast planned this Sunday at Central Mess Hall from 7:30 PM to 10:00 PM.</div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="nav-section-title">STUDENT MODULES</div>
+                    <nav class="sidebar-nav">
+                        <!-- 1. Overview -->
+                        <button type="button" class="nav-link student-nav active" data-target="section-overview">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-label">Dashboard Overview</span>
+                        </button>
 
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>🍱</span> Today's Mess Schedule</h3>
-                                <span class="status-pill approved">Pure Veg / Hygenic</span>
-                            </div>
-                            <div style="font-size:0.8rem; display:flex; flex-direction:column; gap:0.6rem;">
-                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:0.35rem;">
-                                    <strong>Breakfast (7:30 - 9:00 AM)</strong>
-                                    <span>Poha, Idli-Sambar, Tea/Coffee</span>
-                                </div>
-                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:0.35rem;">
-                                    <strong>Lunch (12:30 - 2:30 PM)</strong>
-                                    <span>Chapati, Paneer Butter, Dal Tadka, Rice</span>
-                                </div>
-                                <div style="display:flex; justify-content:space-between;">
-                                    <strong>Dinner (7:30 - 9:30 PM)</strong>
-                                    <span>Roti, Mix Veg, Curd, Jeera Rice, Gulab Jamun</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <!-- 2. Profile -->
+                        <button type="button" class="nav-link student-nav" data-target="section-profile">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-label">Student Profile</span>
+                        </button>
 
-            <!-- ------------------------------------------------------------- -->
-            <!-- 2. PARENT DASHBOARD VIEW -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="dashboard-view" id="parent-dashboard-view">
-                <!-- Stats Matrix -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Enrolled Ward</span>
-                            <h3>Rohit Sharma</h3>
-                            <small style="color:var(--accent-parent); font-weight:600;">PRN: 2026AI042 • AI & DS Yr 3</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:var(--accent-parent);">🎓</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Current Hostel Status</span>
-                            <h3>Inside Campus</h3>
-                            <small style="color:#10b981; font-weight:600;">Verified at Main Gate 7:15 PM</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:#10b981;">📍</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Night Attendance</span>
-                            <h3>99.2% Rate</h3>
-                            <small style="color:#10b981; font-weight:600;">Present for all roll calls</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:#38bdf8;">📊</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Hostel Fee Balance</span>
-                            <h3>₹0.00 (Cleared)</h3>
-                            <small style="color:#10b981; font-weight:600;">Receipt #RCPIT-H-9921</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:var(--accent-parent);">🧾</div>
-                    </div>
-                </div>
+                        <!-- 3. Room Details -->
+                        <button type="button" class="nav-link student-nav" data-target="section-room">
+                            <span class="nav-icon">🛏️</span>
+                            <span class="nav-label">Room Details</span>
+                        </button>
 
-                <div class="dashboard-content-grid">
-                    <div class="dash-panel-col">
-                        <!-- Pending Leave Approval from Ward -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>📲</span> Ward Leave Request (Parent Approval Required)</h3>
-                                <span class="status-pill pending" id="parent-leave-status">Awaiting Parent Consent</span>
-                            </div>
-                            <div style="background:rgba(2,6,23,0.5); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle); margin-bottom:1rem;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.85rem;">
-                                    <strong>Request: Weekend Home Visit</strong>
-                                    <span style="color:var(--accent-parent);">Friday 5:00 PM to Sunday 8:00 PM</span>
-                                </div>
-                                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
-                                    "Traveling to home (Nashik) via MSRTC Bus. Expected departure from RCPIT gate Friday evening."
-                                </p>
-                                <div style="display:flex; gap:0.6rem;">
-                                    <button type="button" class="submit-btn" id="parent-approve-leave-btn" style="background:#10b981; color:#050811; padding:0.55rem 1rem; font-size:0.8rem;">
-                                        <span>✓</span> Approve with Digital Consent
-                                    </button>
-                                    <button type="button" class="btn-action-sm" id="parent-reject-leave-btn" style="color:#f87171; border-color:rgba(239,68,68,0.4);">
-                                        <span>✕</span> Decline Request
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- 4. Complaint Submit -->
+                        <button type="button" class="nav-link student-nav" data-target="section-complaint-submit">
+                            <span class="nav-icon">✍️</span>
+                            <span class="nav-label">Submit Complaint</span>
+                        </button>
 
-                        <!-- Ward In/Out Movement Log -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>⏱️</span> Recent In/Out Campus Movement Log</h3>
-                                <button type="button" class="btn-action-sm">Download Monthly Log</button>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Timestamp</th>
-                                            <th>Gate</th>
-                                            <th>Direction</th>
-                                            <th>Pass Type</th>
-                                            <th>Warden Verification</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Today, 07:15 PM</td>
-                                            <td>Main Campus Gate 1</td>
-                                            <td><span class="status-pill approved">ENTRY IN</span></td>
-                                            <td>Local Outing Pass</td>
-                                            <td>Biometric Verified ✓</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Today, 05:20 PM</td>
-                                            <td>Main Campus Gate 1</td>
-                                            <td><span class="status-pill pending">EXIT OUT</span></td>
-                                            <td>Local Outing Pass</td>
-                                            <td>Security Scanned ✓</td>
-                                        </tr>
-                                        <tr>
-                                            <td>14 Aug, 09:30 PM</td>
-                                            <td>B-Block Turnstile</td>
-                                            <td><span class="status-pill approved">NIGHT ROLL-CALL</span></td>
-                                            <td>In-Hostel</td>
-                                            <td>Rector Dr. Patil ✓</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                        <!-- 5. Complaint Status -->
+                        <button type="button" class="nav-link student-nav" data-target="section-complaint-status">
+                            <span class="nav-icon">📋</span>
+                            <span class="nav-label">Complaint Status</span>
+                            <span class="nav-badge" id="badge-complaints-count">2</span>
+                        </button>
 
-                    <!-- Right Column: Warden Hotline & Info -->
-                    <div class="dash-panel-col">
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>📞</span> Rector & Hostel Helpline</h3>
-                            </div>
-                            <div style="font-size:0.82rem; display:flex; flex-direction:column; gap:0.75rem;">
-                                <div style="background:rgba(2,6,23,0.4); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-                                    <strong style="color:var(--text-main);">Chief Warden (Boys Hostel)</strong>
-                                    <p style="color:var(--text-muted); font-size:0.78rem;">Dr. V. K. Patil (Mobile: +91 94222 XXXXX)</p>
-                                    <span style="font-size:0.7rem; color:#10b981;">Available: 8:00 AM - 10:00 PM</span>
-                                </div>
-                                <div style="background:rgba(2,6,23,0.4); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-                                    <strong style="color:var(--text-main);">24x7 Campus Medical & Ambulance</strong>
-                                    <p style="color:var(--text-muted); font-size:0.78rem;">RCPIT Emergency Desk: 02563-259800</p>
-                                </div>
-                                <div style="background:rgba(2,6,23,0.4); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-                                    <strong style="color:var(--text-main);">Hostel Accounts & Fee Desk</strong>
-                                    <p style="color:var(--text-muted); font-size:0.78rem;">Email: hostel-accounts@rcpit.ac.in</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <!-- 6. Attendance -->
+                        <button type="button" class="nav-link student-nav" data-target="section-attendance">
+                            <span class="nav-icon">📅</span>
+                            <span class="nav-label">Attendance & Roll Call</span>
+                        </button>
 
-            <!-- ------------------------------------------------------------- -->
-            <!-- 3. RECTOR / WARDEN DASHBOARD VIEW -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="dashboard-view" id="rector-dashboard-view">
-                <!-- Stats Matrix -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Total Residents</span>
-                            <h3>420 Students</h3>
-                            <small style="color:var(--accent-rector); font-weight:600;">B-Block (Boys Senior & Junior)</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:var(--accent-rector);">🏢</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Present in Hostel</span>
-                            <h3>395 Students</h3>
-                            <small style="color:#10b981; font-weight:600;">Inside Wing (94.0%)</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:#10b981;">✅</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>On Approved Leave</span>
-                            <h3>20 Students</h3>
-                            <small style="color:var(--warning); font-weight:600;">With Parent Consent</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:var(--warning);">🎫</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Unaccounted / Missing</span>
-                            <h3>5 Students</h3>
-                            <small style="color:var(--danger); font-weight:600;">Pending Roll Call Verification</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:var(--danger);">⚠️</div>
-                    </div>
-                </div>
+                        <!-- 7. Leave Request -->
+                        <button type="button" class="nav-link student-nav" data-target="section-leave">
+                            <span class="nav-icon">📝</span>
+                            <span class="nav-label">Leave & Gate Pass</span>
+                            <span class="nav-badge green">1 Active</span>
+                        </button>
 
-                <div class="dashboard-content-grid">
-                    <div class="dash-panel-col">
-                        <!-- Live Gate Pass Approval Requests Queue -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>🛡️</span> Pending Leave & Gate Pass Approval Queue</h3>
-                                <span class="status-pill pending">3 Requests Awaiting Decision</span>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Student (Room)</th>
-                                            <th>Type</th>
-                                            <th>Duration / Reason</th>
-                                            <th>Parent Consent</th>
-                                            <th>Warden Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <strong>Aman Joshi</strong><br>
-                                                <small style="color:var(--text-muted);">2026AI014 • Room B-102</small>
-                                            </td>
-                                            <td>Night Out</td>
-                                            <td>Home Visit (Fri - Sun)<br><small>Nashik</small></td>
-                                            <td><span class="status-pill approved">Approved ✓</span></td>
-                                            <td>
-                                                <button type="button" class="btn-table-action btn-approve rector-approve-btn">Approve QR</button>
-                                                <button type="button" class="btn-table-action btn-reject rector-reject-btn">Reject</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong>Saurabh More</strong><br>
-                                                <small style="color:var(--text-muted);">2026CS088 • Room B-210</small>
-                                            </td>
-                                            <td>Local Market</td>
-                                            <td>Outing till 9:00 PM<br><small>Books Purchase</small></td>
-                                            <td><span class="status-pill approved">Not Needed</span></td>
-                                            <td>
-                                                <button type="button" class="btn-table-action btn-approve rector-approve-btn">Approve QR</button>
-                                                <button type="button" class="btn-table-action btn-reject rector-reject-btn">Reject</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong>Gaurav Mahajan</strong><br>
-                                                <small style="color:var(--text-muted);">2026IT052 • Room B-305</small>
-                                            </td>
-                                            <td>Night Pass</td>
-                                            <td>Hackathon at Pune (3 Days)</td>
-                                            <td><span class="status-pill pending">Pending Call</span></td>
-                                            <td>
-                                                <button type="button" class="btn-table-action btn-approve rector-approve-btn">Approve QR</button>
-                                                <button type="button" class="btn-table-action btn-reject rector-reject-btn">Reject</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        <!-- 8. Notices -->
+                        <button type="button" class="nav-link student-nav" data-target="section-notices">
+                            <span class="nav-icon">📢</span>
+                            <span class="nav-label">Hostel Notices</span>
+                            <span class="nav-badge new">New</span>
+                        </button>
 
-                        <!-- Live Night Roll Call Checklist -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>📋</span> Night Roll-Call Inspection (Floor 3 - B-Wing)</h3>
-                                <button type="button" class="btn-action-sm">Save All Verified</button>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Room #</th>
-                                            <th>Student Name</th>
-                                            <th>Biometric Status</th>
-                                            <th>Action Toggle</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><strong>B-301</strong></td>
-                                            <td>Aditya Patil (2026AI008)</td>
-                                            <td><span class="status-pill present">Present in Room</span></td>
-                                            <td><button type="button" class="btn-action-sm roll-toggle-btn">Mark Absent</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>B-302</strong></td>
-                                            <td>Nikhil Deshmukh (2026CS012)</td>
-                                            <td><span class="status-pill present">Present in Room</span></td>
-                                            <td><button type="button" class="btn-action-sm roll-toggle-btn">Mark Absent</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>B-303</strong></td>
-                                            <td>Pranav Shinde (2026AI033)</td>
-                                            <td><span class="status-pill absent">Absent / Unaccounted</span></td>
-                                            <td><button type="button" class="btn-action-sm roll-toggle-btn">Mark Present</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>B-304</strong></td>
-                                            <td>Rohit Sharma (2026AI042)</td>
-                                            <td><span class="status-pill present">Present in Room</span></td>
-                                            <td><button type="button" class="btn-action-sm roll-toggle-btn">Mark Absent</button></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <!-- 9. Parent Details -->
+                        <button type="button" class="nav-link student-nav" data-target="section-parents">
+                            <span class="nav-icon">👨‍👩‍👦</span>
+                            <span class="nav-label">Parent Details</span>
+                        </button>
+                    </nav>
+
+                    <!-- Sidebar Support Footer -->
+                    <div class="sidebar-help-box">
+                        <div class="help-icon">🛡️</div>
+                        <div class="help-text">
+                            <strong>Warden Helpline</strong>
+                            <span>Rec. Office: Ext. 402</span>
                         </div>
+                        <a href="tel:+919876543210" class="btn-helpline-call">Call</a>
                     </div>
+                </aside>
 
-                    <!-- Right Column: Broadcast Notice & Emergency Alert -->
-                    <div class="dash-panel-col">
-                        <!-- Broadcast Notice -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>📢</span> Publish Hostel Notice</h3>
+                <!-- MAIN CONTENT CANVAS FOR STUDENT -->
+                <main class="app-content-canvas">
+
+                    <!-- MODULE 1: DASHBOARD OVERVIEW -->
+                    <section class="content-section student-section active" id="section-overview">
+                        <div class="section-header-banner">
+                            <div class="banner-text">
+                                <span class="greeting-tag">Welcome Back 👋</span>
+                                <h2>Student Command Center</h2>
+                                <p>Manage your hostel residency, lodge room issues, apply for leave, and view announcements.</p>
                             </div>
-                            <form id="rector-notice-form" class="quick-form">
-                                <div class="input-group" style="margin-bottom:0.5rem;">
-                                    <label for="notice-title-input">Notice Headline</label>
-                                    <input type="text" id="notice-title-input" class="input-field" placeholder="e.g. Water Tank Maintenance" required style="padding-left:1rem;">
-                                </div>
-                                <div class="input-group" style="margin-bottom:0.5rem;">
-                                    <label for="notice-target">Target Audience</label>
-                                    <select id="notice-target" class="select-field" style="padding-left:1rem;">
-                                        <option>All Hostel Residents</option>
-                                        <option>B-Block Only</option>
-                                        <option>Hostel Prefects / Representatives</option>
-                                    </select>
-                                </div>
-                                <textarea placeholder="Type notice content for student portals and notice boards..." required></textarea>
-                                <button type="submit" class="submit-btn" style="background:var(--accent-rector); color:#ffffff; padding:0.65rem 1rem;">
-                                    Broadcast Notice Instantly
+                            <div class="banner-action">
+                                <button type="button" class="btn-banner-primary" onclick="switchStudentSection('section-leave')">
+                                    <span>🎟️ Quick Gate Pass</span>
                                 </button>
-                            </form>
+                                <button type="button" class="btn-banner-secondary" onclick="switchStudentSection('section-complaint-submit')">
+                                    <span>🛠️ Lodge Issue</span>
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Quick Disciplinary Incident Log -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>⚖️</span> Room Inspection & Discipline Log</h3>
+                        <!-- Top KPI Stats Row -->
+                        <div class="kpi-grid">
+                            <div class="kpi-card" onclick="switchStudentSection('section-room')">
+                                <div class="kpi-icon-box amber">🛏️</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Allocated Room</span>
+                                    <h3 class="kpi-val">Room B-304</h3>
+                                    <span class="kpi-sub">Bed #02 • 3-Sharing Wing</span>
+                                </div>
                             </div>
-                            <div class="action-list">
-                                <div class="notice-item">
-                                    <div class="notice-meta">
-                                        <span>Room B-208</span>
-                                        <span>15 Aug</span>
+
+                            <div class="kpi-card" onclick="switchStudentSection('section-attendance')">
+                                <div class="kpi-icon-box emerald">📊</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Roll Call Attendance</span>
+                                    <h3 class="kpi-val">96.8%</h3>
+                                    <span class="kpi-sub highlight-success">✓ 28 / 29 Days Present</span>
+                                </div>
+                            </div>
+
+                            <div class="kpi-card" onclick="switchStudentSection('section-complaint-status')">
+                                <div class="kpi-icon-box blue">📋</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Maintenance Tickets</span>
+                                    <h3 class="kpi-val" id="overview-complaint-val">1 In Progress</h3>
+                                    <span class="kpi-sub">Total 3 Lodged • 2 Resolved</span>
+                                </div>
+                            </div>
+
+                            <div class="kpi-card" onclick="switchStudentSection('section-leave')">
+                                <div class="kpi-icon-box violet">🎟️</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Gate Pass Status</span>
+                                    <h3 class="kpi-val highlight-success">1 Approved</h3>
+                                    <span class="kpi-sub">Valid till 09:30 PM Today</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Split Layout -->
+                        <div class="dashboard-split-grid">
+                            <div class="split-column">
+                                <!-- Active Digital Gate Pass Box -->
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🎫</span>
+                                            <h3>Active Digital Gate Pass</h3>
+                                        </div>
+                                        <span class="status-pill active-approved">APPROVED BY RECTOR</span>
                                     </div>
-                                    <div class="notice-title">Unauthorized Electrical Appliance Confiscated</div>
-                                    <div class="notice-body">Induction heater found during weekly room audit. Warning notice issued.</div>
+                                    <div class="gate-pass-ticket">
+                                        <div class="ticket-header">
+                                            <div>
+                                                <h4>LOCAL EVENING OUTING</h4>
+                                                <span class="ticket-code">Pass ID: #RCPIT-GP-8842</span>
+                                            </div>
+                                            <div class="ticket-qr-mock">
+                                                <span class="qr-label">SECURITY SCAN</span>
+                                                <div class="qr-matrix">▦▨▧</div>
+                                            </div>
+                                        </div>
+                                        <div class="ticket-body-grid">
+                                            <div>
+                                                <label>Student Name</label>
+                                                <p>Rohit Sharma (2026AI042)</p>
+                                            </div>
+                                            <div>
+                                                <label>Destination</label>
+                                                <p>City Market / Stationary</p>
+                                            </div>
+                                            <div>
+                                                <label>Exit Allowed From</label>
+                                                <p>Today, 05:30 PM</p>
+                                            </div>
+                                            <div>
+                                                <label>Must Return By</label>
+                                                <p class="return-time">Today, 09:30 PM</p>
+                                            </div>
+                                        </div>
+                                        <div class="ticket-footer">
+                                            <span>🛡️ Digital Rector Signature: <strong>Dr. V. K. Patil (Verified)</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Complaint Activity -->
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🛠️</span>
+                                            <h3>Active Room Maintenance</h3>
+                                        </div>
+                                        <button type="button" class="btn-link-action" onclick="switchStudentSection('section-complaint-status')">View All →</button>
+                                    </div>
+                                    <div class="compact-ticket-item">
+                                        <div class="ticket-status-dot in-progress"></div>
+                                        <div class="ticket-details">
+                                            <div class="ticket-title-row">
+                                                <strong>Ceiling Fan Speed Regulator Issue</strong>
+                                                <span class="status-badge-inline in-progress">In Progress</span>
+                                            </div>
+                                            <p>Technician Mr. Kailash assigned. Inspection scheduled today at 4:30 PM.</p>
+                                            <span class="ticket-time-tag">Ticket #TCK-309 • Electrical • Bed 02</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="split-column">
+                                <!-- Notice Board Preview -->
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">📢</span>
+                                            <h3>Pinned Notices & Circulars</h3>
+                                        </div>
+                                        <button type="button" class="btn-link-action" onclick="switchStudentSection('section-notices')">All Notices (4) →</button>
+                                    </div>
+                                    <div class="notice-card-compact urgent">
+                                        <div class="notice-top">
+                                            <span class="badge-urgent">URGENT NOTICE</span>
+                                            <span class="notice-date">Today, 04:30 PM</span>
+                                        </div>
+                                        <h4>Hostel Night Roll Call Timings Strict Compliance</h4>
+                                        <p>All residents must be present in their respective rooms for the 09:45 PM biometric inspection roll call.</p>
+                                        <span class="notice-author">Issued by: Rector Office (Block B)</span>
+                                    </div>
+
+                                    <div class="notice-card-compact">
+                                        <div class="notice-top">
+                                            <span class="badge-general">MESS COMMITTEE</span>
+                                            <span class="notice-date">Yesterday</span>
+                                        </div>
+                                        <h4>Sunday Special Feast Dinner Menu</h4>
+                                        <p>Special dinner feast planned for all hostel wings this Sunday from 07:30 PM to 09:45 PM.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Student Snapshot -->
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">📌</span>
+                                            <h3>Resident Quick Summary</h3>
+                                        </div>
+                                    </div>
+                                    <div class="quick-summary-list">
+                                        <div class="summary-row">
+                                            <span>Branch / Academic Year</span>
+                                            <strong>B.Tech AI & Data Science (Year 3)</strong>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Hostel Warden / Rector</span>
+                                            <strong>Dr. V. K. Patil (Mob: 9822334455)</strong>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Mess Token Number</span>
+                                            <strong class="highlight-success">Active Card #RCPIT-M-8821</strong>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Hostel Fee Status</span>
+                                            <strong class="highlight-success">₹65,000 Paid (No Dues)</strong>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </section>
 
-            <!-- ------------------------------------------------------------- -->
-            <!-- 4. SYSTEM ADMIN MASTER DASHBOARD VIEW -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="dashboard-view" id="admin-dashboard-view">
-                <!-- Stats Matrix -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Hostel Infrastructure</span>
-                            <h3>3 Blocks • 150 Rooms</h3>
-                            <small style="color:var(--accent-admin); font-weight:600;">Total Bed Capacity: 450</small>
+                    <!-- MODULE 2: STUDENT PROFILE -->
+                    <section class="content-section student-section" id="section-profile">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Student Resident Profile</h2>
+                                <p>Personal, academic, and residential credentials registered in RCPIT Hostel master records.</p>
+                            </div>
+                            <button type="button" class="btn-primary-action" onclick="window.print()">
+                                <span>🖨️ Print Resident ID Slip</span>
+                            </button>
                         </div>
-                        <div class="stat-icon-wrapper" style="color:var(--accent-admin);">🏛️</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Total Occupancy</span>
-                            <h3>420 / 450 Beds</h3>
-                            <small style="color:#10b981; font-weight:600;">93.3% Occupied • 30 Vacant</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:#10b981;">📊</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Fee Revenue Collected</span>
-                            <h3>₹2.73 Crore</h3>
-                            <small style="color:#10b981; font-weight:600;">98.4% Clearance Rate</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:#38bdf8;">💰</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <span>Staff & Wardens</span>
-                            <h3>12 Active Staff</h3>
-                            <small style="color:var(--accent-admin); font-weight:600;">4 Rectors • 8 Support</small>
-                        </div>
-                        <div class="stat-icon-wrapper" style="color:var(--accent-admin);">👥</div>
-                    </div>
-                </div>
 
-                <div class="dashboard-content-grid">
-                    <div class="dash-panel-col">
-                        <!-- Student Master Allocation & Management -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>👥</span> Student & Room Allocation Master Registry</h3>
-                                <div class="panel-actions">
-                                    <button type="button" class="btn-action-sm" id="admin-add-student-btn" style="background:var(--accent-admin); color:#fff; font-weight:600;">+ Allocate Student</button>
-                                    <button type="button" class="btn-action-sm" id="admin-export-report-btn">Export CSV</button>
+                        <div class="profile-layout-grid">
+                            <!-- Digital ID Card -->
+                            <div class="student-id-card-preview">
+                                <div class="id-card-header">
+                                    <img src="LOGO.PNG.png" alt="RCPIT Logo" class="id-logo">
+                                    <div>
+                                        <h3>R. C. PATEL INSTITUTE OF TECHNOLOGY</h3>
+                                        <span>HOSTEL RESIDENT DIGITAL CARD</span>
+                                    </div>
                                 </div>
+                                <div class="id-card-body">
+                                    <div class="id-photo-frame">
+                                        <div class="id-photo-placeholder student-avatar">RS</div>
+                                        <span class="id-active-tag">ACTIVE RESIDENT</span>
+                                    </div>
+                                    <div class="id-student-info">
+                                        <h3>Rohit Sharma</h3>
+                                        <p class="id-prn">PRN: <strong>2026AI042</strong></p>
+                                        <p class="id-dept">Dept of Artificial Intelligence & Data Science</p>
+                                        <div class="id-room-badge">
+                                            <span>Hostel: <strong>Block B</strong></span>
+                                            <span>Room: <strong>B-304 (Bed 2)</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="id-card-footer">
+                                    <div class="barcode-mock">||| | |||| | | ||||| || | |||| |||</div>
+                                    <span>Academic Session 2025 - 2026</span>
+                                </div>
+                            </div>
+
+                            <!-- Details Column -->
+                            <div class="profile-details-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🎓</span>
+                                            <h3>Academic & Personal Information</h3>
+                                        </div>
+                                    </div>
+                                    <div class="details-form-grid">
+                                        <div class="field-item">
+                                            <label>Full Student Name</label>
+                                            <div class="field-val">Rohit Devendra Sharma</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Permanent PRN Number</label>
+                                            <div class="field-val font-mono">2026AI042</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Degree & Branch</label>
+                                            <div class="field-val">B.Tech - Artificial Intelligence & Data Science</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Academic Year & Semester</label>
+                                            <div class="field-val">Third Year (Semester VI)</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Official College Email</label>
+                                            <div class="field-val font-mono">rohit.sharma@rcpit.ac.in</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Student Contact Number</label>
+                                            <div class="field-val font-mono">+91 98765 43210</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Date of Birth</label>
+                                            <div class="field-val">12 July 2004</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Blood Group</label>
+                                            <div class="field-val highlight-danger">O +ve</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🏢</span>
+                                            <h3>Hostel Allotment & Security Records</h3>
+                                        </div>
+                                    </div>
+                                    <div class="details-form-grid">
+                                        <div class="field-item">
+                                            <label>Hostel Wing / Block</label>
+                                            <div class="field-val">Block B (Boys Senior Hostel)</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Room & Floor</label>
+                                            <div class="field-val">Room B-304 (3rd Floor)</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Bed Allotment</label>
+                                            <div class="field-val">Bed #02 (Window Side)</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Admission Date</label>
+                                            <div class="field-val">01 July 2024</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Biometric Punch ID</label>
+                                            <div class="field-val font-mono">BIO-RCPIT-0942</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Disciplinary Record</label>
+                                            <div class="field-val highlight-success">Clean Record (Zero Infractions)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- MODULE 3: ROOM DETAILS -->
+                    <section class="content-section student-section" id="section-room">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Room Details & Roommates</h2>
+                                <p>Information about your allocated room, furniture inventory, utilities, and fellow roommates.</p>
+                            </div>
+                            <button type="button" class="btn-primary-action" onclick="switchStudentSection('section-complaint-submit')">
+                                <span>🛠️ Report Room Fixture Issue</span>
+                            </button>
+                        </div>
+
+                        <div class="room-hero-card">
+                            <div class="room-hero-left">
+                                <div class="room-badge-large">B-304</div>
+                                <div>
+                                    <h3>Hostel Block B • 3rd Floor (East Wing)</h3>
+                                    <p>3-Sharing Deluxe Student Room with Attached Washroom & Balcony</p>
+                                    <div class="room-tags">
+                                        <span class="tag-pill">🛏️ 3 Bed Capacity</span>
+                                        <span class="tag-pill">📶 High-Speed LAN + Wi-Fi</span>
+                                        <span class="tag-pill">⚡ 24/7 Power Backup</span>
+                                        <span class="tag-pill">🚿 Solar Hot Water</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="room-hero-right">
+                                <div class="bed-allocated-box">
+                                    <span>YOUR BED NUMBER</span>
+                                    <h2>BED #02</h2>
+                                    <small>East Window Facing</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-split-grid">
+                            <div class="split-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">👥</span>
+                                            <h3>Assigned Roommates</h3>
+                                        </div>
+                                        <span class="badge-count">3 / 3 Occupied</span>
+                                    </div>
+                                    <div class="roommates-list">
+                                        <div class="roommate-card current-user">
+                                            <div class="roommate-avatar self">RS</div>
+                                            <div class="roommate-info">
+                                                <div class="roommate-name-row">
+                                                    <h4>Rohit Sharma <span class="self-tag">(You)</span></h4>
+                                                    <span class="bed-pill">Bed #02</span>
+                                                </div>
+                                                <p>PRN: 2026AI042 • B.Tech AI & DS (Yr 3)</p>
+                                                <div class="roommate-contact">
+                                                    <span>📞 +91 98765 43210</span>
+                                                    <span>📍 Hometown: Nashik</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="roommate-card">
+                                            <div class="roommate-avatar">AP</div>
+                                            <div class="roommate-info">
+                                                <div class="roommate-name-row">
+                                                    <h4>Aditya Patil</h4>
+                                                    <span class="bed-pill">Bed #01</span>
+                                                </div>
+                                                <p>PRN: 2026CS108 • B.Tech Computer Engg (Yr 3)</p>
+                                                <div class="roommate-contact">
+                                                    <span>📞 +91 98234 11223</span>
+                                                    <span>📍 Hometown: Jalgaon</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="roommate-card">
+                                            <div class="roommate-avatar">SK</div>
+                                            <div class="roommate-info">
+                                                <div class="roommate-name-row">
+                                                    <h4>Sameer Kulkarni</h4>
+                                                    <span class="bed-pill">Bed #03</span>
+                                                </div>
+                                                <p>PRN: 2026IT055 • B.Tech Information Tech (Yr 3)</p>
+                                                <div class="roommate-contact">
+                                                    <span>📞 +91 94032 88771</span>
+                                                    <span>📍 Hometown: Pune</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="split-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">📦</span>
+                                            <h3>Room Inventory & Fixture Status</h3>
+                                        </div>
+                                        <span class="badge-status ok">All Inspected ✓</span>
+                                    </div>
+                                    <div class="inventory-grid">
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">🛏️</span>
+                                            <div class="inv-info"><strong>Study Cot & Mattress</strong><span>Tag: B304-BED-2</span></div>
+                                            <span class="inv-status good">Good</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">📚</span>
+                                            <div class="inv-info"><strong>Study Table & Chair</strong><span>Tag: B304-TBL-2</span></div>
+                                            <span class="inv-status good">Good</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">🚪</span>
+                                            <div class="inv-info"><strong>Steel Almirah Locker</strong><span>Tag: B304-LKR-2</span></div>
+                                            <span class="inv-status good">Good</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">💡</span>
+                                            <div class="inv-info"><strong>Tube light & Night Lamp</strong><span>LED 20W</span></div>
+                                            <span class="inv-status good">Working</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">🌀</span>
+                                            <div class="inv-info"><strong>Ceiling Fan & Regulator</strong><span>Regulator check required</span></div>
+                                            <span class="inv-status repair">Repair Open</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">🌐</span>
+                                            <div class="inv-info"><strong>Gigabit LAN Port</strong><span>Port #B304-P2</span></div>
+                                            <span class="inv-status good">Active</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- MODULE 4: COMPLAINT SUBMIT -->
+                    <section class="content-section student-section" id="section-complaint-submit">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Submit Room Maintenance / Complaint</h2>
+                                <p>Lodge electrical, plumbing, Wi-Fi, carpentry, cleanliness, or food complaints directly to hostel maintenance staff.</p>
+                            </div>
+                            <button type="button" class="btn-secondary-action" onclick="switchStudentSection('section-complaint-status')">
+                                <span>📋 View Past Complaint Status</span>
+                            </button>
+                        </div>
+
+                        <div class="form-card-container">
+                            <div class="form-card">
+                                <form id="complaint-submission-form" class="app-form">
+                                    <div class="form-row-2">
+                                        <div class="form-group">
+                                            <label for="complaint-category">Issue Category <span class="req">*</span></label>
+                                            <div class="input-container">
+                                                <span class="input-icon">📂</span>
+                                                <select id="complaint-category" class="select-input" required>
+                                                    <option value="" disabled selected>Select category of grievance</option>
+                                                    <option value="Electrical">⚡ Electrical (Fan, Light, Switch, Geyser)</option>
+                                                    <option value="Plumbing">🚰 Plumbing (Tap Leak, Bathroom, Flush)</option>
+                                                    <option value="Internet / Wi-Fi">🌐 Wi-Fi & LAN Network Issue</option>
+                                                    <option value="Carpentry & Furniture">🪑 Carpentry (Bed, Table, Almirah)</option>
+                                                    <option value="Cleanliness & Housekeeping">🧹 Housekeeping & Room Cleanliness</option>
+                                                    <option value="Mess & Food">🍱 Mess Food Quality / Drinking Water</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="complaint-priority">Priority / Urgency Level <span class="req">*</span></label>
+                                            <div class="input-container">
+                                                <span class="input-icon">🚨</span>
+                                                <select id="complaint-priority" class="select-input" required>
+                                                    <option value="Medium" selected>🟡 Medium (Within 24 Hours)</option>
+                                                    <option value="High">🟠 High Priority (Within 6 Hours)</option>
+                                                    <option value="Emergency">🔴 Critical / Emergency (Immediate Dispatch)</option>
+                                                    <option value="Low">🟢 Low Priority (Routine Maintenance)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row-2">
+                                        <div class="form-group">
+                                            <label for="complaint-room">Location / Room Number <span class="req">*</span></label>
+                                            <div class="input-container">
+                                                <span class="input-icon">📍</span>
+                                                <input type="text" id="complaint-room" value="Room B-304 (Bed 2)" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="complaint-time-pref">Preferred Visit Time</label>
+                                            <div class="input-container">
+                                                <span class="input-icon">⏰</span>
+                                                <select id="complaint-time-pref" class="select-input">
+                                                    <option value="Morning (9:00 AM - 12:00 PM)">Morning (9:00 AM - 12:00 PM)</option>
+                                                    <option value="Afternoon (2:00 PM - 5:00 PM)" selected>Afternoon (2:00 PM - 5:00 PM)</option>
+                                                    <option value="Evening (5:00 PM - 7:30 PM)">Evening (5:00 PM - 7:30 PM)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="complaint-title">Brief Complaint Subject <span class="req">*</span></label>
+                                        <div class="input-container">
+                                            <span class="input-icon">📌</span>
+                                            <input type="text" id="complaint-title" placeholder="e.g. Bathroom tap leaking or Study light not glowing" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="complaint-description">Detailed Description of Problem <span class="req">*</span></label>
+                                        <textarea id="complaint-description" rows="4" placeholder="Please describe the exact issue to help the maintenance technician..." required></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Attach Photo (Optional)</label>
+                                        <div class="file-upload-dropzone" id="file-dropzone">
+                                            <span class="upload-icon">📷</span>
+                                            <p><strong>Click to browse photo</strong> or drag image here</p>
+                                            <input type="file" id="complaint-file" accept="image/*" style="display:none;">
+                                            <div id="file-preview-name" class="file-preview-badge" style="display:none;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-btn-actions">
+                                        <button type="submit" class="btn-submit-main">
+                                            <span>🛠️ Lodge Maintenance Complaint</span>
+                                        </button>
+                                        <button type="reset" class="btn-reset-main">
+                                            <span>Clear Form</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="form-guidelines-box">
+                                <h3>💡 Maintenance Guidelines</h3>
+                                <ul class="guideline-list">
+                                    <li><strong>Emergency Issues:</strong> For water pipe burst or spark hazards, contact the Rector directly at <code>Ext. 402</code>.</li>
+                                    <li><strong>Technician Entry:</strong> Staff will enter only when resident is present or authorized.</li>
+                                    <li><strong>Live Tracking:</strong> Updates appear in <em>Complaint Status</em> module.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- MODULE 5: COMPLAINT STATUS -->
+                    <section class="content-section student-section" id="section-complaint-status">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Complaint Status & History</h2>
+                                <p>Track the real-time status of all grievances and maintenance tickets lodged by you.</p>
+                            </div>
+                            <button type="button" class="btn-primary-action" onclick="switchStudentSection('section-complaint-submit')">
+                                <span>✍️ Submit New Complaint</span>
+                            </button>
+                        </div>
+
+                        <div class="filter-bar">
+                            <div class="filter-tabs">
+                                <button type="button" class="filter-tab student-cfilter active" data-filter="all">All Complaints (<span id="count-all">3</span>)</button>
+                                <button type="button" class="filter-tab student-cfilter" data-filter="In Progress">In Progress (<span id="count-inprogress">1</span>)</button>
+                                <button type="button" class="filter-tab student-cfilter" data-filter="Pending">Pending (<span id="count-pending">0</span>)</button>
+                                <button type="button" class="filter-tab student-cfilter" data-filter="Resolved">Resolved (<span id="count-resolved">2</span>)</button>
+                            </div>
+                            <div class="search-input-box">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="search-complaints" placeholder="Search tickets by ID or title...">
+                            </div>
+                        </div>
+
+                        <div class="complaints-card-list" id="complaints-container"></div>
+                    </section>
+
+                    <!-- MODULE 6: ATTENDANCE & ROLL CALL -->
+                    <section class="content-section student-section" id="section-attendance">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Hostel Attendance & Night Roll Call</h2>
+                                <p>Daily 09:45 PM night roll call records, monthly attendance percentage, and biometric log verification.</p>
+                            </div>
+                            <div class="attendance-filter-month">
+                                <span>Month: <strong>August 2026</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-grid">
+                            <div class="kpi-card">
+                                <div class="kpi-icon-box emerald">📈</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Monthly Attendance Rate</span>
+                                    <h3 class="kpi-val highlight-success">96.8%</h3>
+                                    <span class="kpi-sub">Target: Minimum 85% Required</span>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon-box emerald">✅</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Present Days</span>
+                                    <h3 class="kpi-val">28 Days</h3>
+                                    <span class="kpi-sub">In-room biometric verified</span>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon-box blue">🏖️</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Approved Leaves</span>
+                                    <h3 class="kpi-val">1 Day</h3>
+                                    <span class="kpi-sub">Home visit with parent consent</span>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon-box amber">⚠️</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Unexcused Absences</span>
+                                    <h3 class="kpi-val highlight-success">0 Days</h3>
+                                    <span class="kpi-sub">Clean record maintained</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-box">
+                            <div class="panel-box-header">
+                                <div class="panel-title-group">
+                                    <span class="panel-emoji">📋</span>
+                                    <h3>Daily Night Roll Call Attendance Log (August 2026)</h3>
+                                </div>
+                                <span class="badge-status ok">Roll Call Time: 09:45 PM Daily</span>
                             </div>
                             <div class="table-responsive">
-                                <table class="data-table">
+                                <table class="app-table">
                                     <thead>
                                         <tr>
-                                            <th>PRN ID</th>
-                                            <th>Student Name</th>
-                                            <th>Department</th>
-                                            <th>Block & Room</th>
-                                            <th>Fee Status</th>
-                                            <th>Actions</th>
+                                            <th>Date & Day</th>
+                                            <th>Inspection Time</th>
+                                            <th>Verification Mode</th>
+                                            <th>Warden In-Charge</th>
+                                            <th>Attendance Status</th>
+                                            <th>Remarks</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="admin-student-table-body">
-                                        <tr>
-                                            <td><strong>2026AI042</strong></td>
-                                            <td>Rohit Sharma</td>
-                                            <td>B.Tech AI & DS (Yr 3)</td>
-                                            <td>B-Block (Room 304)</td>
-                                            <td><span class="status-pill paid">Paid ₹65,000</span></td>
-                                            <td><button type="button" class="btn-action-sm">Edit</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>2026CS019</strong></td>
-                                            <td>Priya Mahajan</td>
-                                            <td>B.Tech Comp (Yr 2)</td>
-                                            <td>C-Block (Room 108)</td>
-                                            <td><span class="status-pill paid">Paid ₹65,000</span></td>
-                                            <td><button type="button" class="btn-action-sm">Edit</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>2026ME005</strong></td>
-                                            <td>Kiran Chaudhari</td>
-                                            <td>B.Tech Mech (Yr 4)</td>
-                                            <td>A-Block (Room 201)</td>
-                                            <td><span class="status-pill unpaid">Due ₹15,000</span></td>
-                                            <td><button type="button" class="btn-action-sm">Remind</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>2026IT077</strong></td>
-                                            <td>Tanmay Sonawane</td>
-                                            <td>B.Tech IT (Yr 1)</td>
-                                            <td>B-Block (Room 115)</td>
-                                            <td><span class="status-pill paid">Paid ₹65,000</span></td>
-                                            <td><button type="button" class="btn-action-sm">Edit</button></td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody id="student-attendance-tbody"></tbody>
                                 </table>
                             </div>
                         </div>
+                    </section>
 
-                        <!-- Block & Warden Assignment Matrix -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>🏢</span> Hostel Blocks & Assigned Rectors</h3>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Block Code</th>
-                                            <th>Wing Name</th>
-                                            <th>Total Rooms</th>
-                                            <th>Capacity / Occupied</th>
-                                            <th>Assigned Rector</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><strong>A-Block</strong></td>
-                                            <td>Boys Senior Wing (Final & 3rd Yr)</td>
-                                            <td>50 Rooms</td>
-                                            <td>150 / 142 Beds (94.6%)</td>
-                                            <td>Prof. M. R. Patil</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>B-Block</strong></td>
-                                            <td>Boys Junior Wing (1st & 2nd Yr)</td>
-                                            <td>50 Rooms</td>
-                                            <td>150 / 148 Beds (98.6%)</td>
-                                            <td>Dr. V. K. Patil</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>C-Block</strong></td>
-                                            <td>Girls Campus Hostel (All Years)</td>
-                                            <td>50 Rooms</td>
-                                            <td>150 / 130 Beds (86.6%)</td>
-                                            <td>Dr. S. A. Chaudhari</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    <!-- MODULE 7: LEAVE REQUEST & GATE PASS -->
+                    <section class="content-section student-section" id="section-leave">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Leave Request & Digital Gate Pass</h2>
+                                <p>Apply for local outing, night stay, weekend home visit, or medical leave. Generates QR-verified digital pass upon Rector approval.</p>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Right Column: System Logs & Billing -->
-                    <div class="dash-panel-col">
-                        <!-- Mess Contractor & Maintenance Billing -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>🧾</span> Contractor & Mess Billing</h3>
-                            </div>
-                            <div style="font-size:0.8rem; display:flex; flex-direction:column; gap:0.6rem;">
-                                <div style="background:rgba(2,6,23,0.4); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-                                    <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
-                                        <strong>Annapurna Catering (Mess)</strong>
-                                        <span class="status-pill approved">Invoice Cleared</span>
+                        <div class="dashboard-split-grid">
+                            <div class="split-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">✍️</span>
+                                            <h3>New Leave / Gate Pass Application</h3>
+                                        </div>
                                     </div>
-                                    <p style="color:var(--text-muted); font-size:0.75rem;">August Cycle: ₹14,20,000 (420 Students)</p>
+                                    <form id="leave-request-form" class="app-form">
+                                        <div class="form-group">
+                                            <label for="leave-type">Pass / Leave Category <span class="req">*</span></label>
+                                            <div class="input-container">
+                                                <span class="input-icon">🎟️</span>
+                                                <select id="leave-type" class="select-input" required>
+                                                    <option value="Local Evening Outing (Market)">🛍️ Local Evening Outing (Return by 09:30 PM)</option>
+                                                    <option value="Weekend Home Visit">🏡 Weekend Home Visit (Parent Consent Required)</option>
+                                                    <option value="Night Stay Pass">🌙 Night Stay / Relative Visit</option>
+                                                    <option value="Emergency Medical Leave">🏥 Emergency Medical Pass</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-row-2">
+                                            <div class="form-group">
+                                                <label for="leave-from-date">Departure Date & Time <span class="req">*</span></label>
+                                                <div class="input-container">
+                                                    <span class="input-icon">📅</span>
+                                                    <input type="datetime-local" id="leave-from-date" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="leave-to-date">Expected Return Date & Time <span class="req">*</span></label>
+                                                <div class="input-container">
+                                                    <span class="input-icon">⏰</span>
+                                                    <input type="datetime-local" id="leave-to-date" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="leave-destination">Destination City & Address <span class="req">*</span></label>
+                                            <div class="input-container">
+                                                <span class="input-icon">📍</span>
+                                                <input type="text" id="leave-destination" placeholder="e.g. Shirpur Market OR Home (Flat 402, Nashik Road)" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="leave-reason">Purpose & Reason of Leave <span class="req">*</span></label>
+                                            <textarea id="leave-reason" rows="3" placeholder="Explain reason for leave and travel details..." required></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="leave-parent-phone">Parent Contact for Digital Consent</label>
+                                            <div class="input-container">
+                                                <span class="input-icon">📞</span>
+                                                <input type="tel" id="leave-parent-phone" value="+91 94231 99880" readonly>
+                                            </div>
+                                            <small class="field-note">Parent portal and SMS notifications sent automatically.</small>
+                                        </div>
+                                        <button type="submit" class="btn-submit-main">
+                                            <span>🚀 Submit Leave Application to Rector</span>
+                                        </button>
+                                    </form>
                                 </div>
-                                <div style="background:rgba(2,6,23,0.4); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-                                    <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
-                                        <strong>Shree Facility & Maintenance</strong>
-                                        <span class="status-pill pending">Pending Audit</span>
+                            </div>
+
+                            <div class="split-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🎫</span>
+                                            <h3>Your Active & Recent Gate Passes</h3>
+                                        </div>
                                     </div>
-                                    <p style="color:var(--text-muted); font-size:0.75rem;">Electrical & Plumbing AMC: ₹1,85,000</p>
+                                    <div class="passes-list" id="passes-container"></div>
                                 </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- MODULE 8: NOTICES -->
+                    <section class="content-section student-section" id="section-notices">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Official Hostel Notices & Circulars</h2>
+                                <p>Announcements, roll call directives, mess schedules, and administrative notifications for residents.</p>
+                            </div>
+                        </div>
+                        <div class="filter-bar">
+                            <div class="filter-tabs">
+                                <button type="button" class="filter-tab student-nfilter active" data-notice-cat="all">All Notices (4)</button>
+                                <button type="button" class="filter-tab student-nfilter" data-notice-cat="urgent">Urgent Alerts (1)</button>
+                                <button type="button" class="filter-tab student-nfilter" data-notice-cat="mess">Mess & Dining (1)</button>
+                                <button type="button" class="filter-tab student-nfilter" data-notice-cat="general">General & Rules (2)</button>
+                            </div>
+                        </div>
+                        <div class="notices-grid" id="student-notices-container"></div>
+                    </section>
+
+                    <!-- MODULE 9: PARENT DETAILS -->
+                    <section class="content-section student-section" id="section-parents">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Parent & Guardian Details</h2>
+                                <p>Verified parent contacts, permanent home address, local guardian details, and emergency communication records.</p>
                             </div>
                         </div>
 
-                        <!-- System Security & Activity Audit Log -->
-                        <div class="dash-panel">
-                            <div class="panel-header">
-                                <h3><span>🛡️</span> Security & Audit Log</h3>
-                                <span class="status-pill present">Live</span>
+                        <div class="dashboard-split-grid">
+                            <div class="split-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">👨‍👩‍👦</span>
+                                            <h3>Primary Parent Information</h3>
+                                        </div>
+                                        <span class="badge-status ok">Verified on Master DB ✓</span>
+                                    </div>
+                                    <div class="parent-info-layout">
+                                        <div class="parent-block">
+                                            <div class="parent-avatar-box">👨</div>
+                                            <div class="parent-text-fields">
+                                                <label>Father's Name</label>
+                                                <h4>Mr. Rajesh Devendra Sharma</h4>
+                                                <span class="parent-sub-tag">Occupation: Senior Civil Engineer (PWD)</span>
+                                                <div class="contact-actions-row">
+                                                    <a href="tel:+919423199880" class="btn-contact-pill"><span>📞</span> +91 94231 99880</a>
+                                                    <a href="https://wa.me/919423199880" target="_blank" class="btn-whatsapp-pill"><span>💬</span> WhatsApp</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="parent-block">
+                                            <div class="parent-avatar-box">👩</div>
+                                            <div class="parent-text-fields">
+                                                <label>Mother's Name</label>
+                                                <h4>Mrs. Sunita Rajesh Sharma</h4>
+                                                <span class="parent-sub-tag">Occupation: Professor / Homemaker</span>
+                                                <div class="contact-actions-row">
+                                                    <a href="tel:+919423199881" class="btn-contact-pill"><span>📞</span> +91 94231 99881</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="parent-block">
+                                            <div class="parent-avatar-box">✉️</div>
+                                            <div class="parent-text-fields">
+                                                <label>Registered Parent Email ID</label>
+                                                <h4 class="font-mono">rajesh.sharma.nashik@gmail.com</h4>
+                                                <span class="parent-sub-tag">Auto-receives leave approvals & roll-call alerts</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="action-list" style="font-size:0.78rem;">
-                                <div style="border-left:2px solid var(--accent-admin); padding-left:0.6rem;">
-                                    <span style="color:var(--text-dim); font-size:0.7rem;">00:15 AM - Rector Desk</span>
-                                    <p style="color:var(--text-main);">Night roll call synchronized for B-Block (395 Present).</p>
+
+                            <div class="split-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🏡</span>
+                                            <h3>Permanent Home Address</h3>
+                                        </div>
+                                    </div>
+                                    <div class="address-box-content">
+                                        <p class="address-text">
+                                            <strong>Flat No. 402, 'Shree Ganesh Heights',</strong><br>
+                                            Near Samarth Nagar Water Tank, Gangapur Road,<br>
+                                            Nashik, Maharashtra - 422013 (India)
+                                        </p>
+                                        <div class="address-meta-row">
+                                            <span>Distance from Campus: <strong>~185 km</strong></span>
+                                            <span>Travel Route: <strong>MSRTC / NH-52</strong></span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style="border-left:2px solid #10b981; padding-left:0.6rem;">
-                                    <span style="color:var(--text-dim); font-size:0.7rem;">11:45 PM - Gate Terminal</span>
-                                    <p style="color:var(--text-main);">Automated late-entry SMS sent to 2 parent contacts.</p>
-                                </div>
-                                <div style="border-left:2px solid var(--accent-student); padding-left:0.6rem;">
-                                    <span style="color:var(--text-dim); font-size:0.7rem;">09:12 PM - Student Portal</span>
-                                    <p style="color:var(--text-main);">New leave application submitted by PRN 2026AI014.</p>
+
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🛡️</span>
+                                            <h3>Local Guardian (Shirpur Region)</h3>
+                                        </div>
+                                        <span class="badge-status ok">Emergency Contact</span>
+                                    </div>
+                                    <div class="parent-block">
+                                        <div class="parent-avatar-box">👤</div>
+                                        <div class="parent-text-fields">
+                                            <label>Local Guardian Name</label>
+                                            <h4>Mr. Mahendra S. Patil</h4>
+                                            <span class="parent-sub-tag">Relation: Maternal Uncle (Resident of Shirpur)</span>
+                                            <p style="font-size:0.85rem; color:var(--text-muted); margin:0.3rem 0;">Address: 12, Karvand Naka Road, Shirpur</p>
+                                            <div class="contact-actions-row">
+                                                <a href="tel:+919890123456" class="btn-contact-pill"><span>📞</span> +91 98901 23456</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </section>
+
+                </main>
             </div>
-
         </div>
 
-    </div>
 
-    <!-- ================= ALLOCATE STUDENT MODAL DIALOG ================= -->
-    <div class="modal-overlay" id="allocate-modal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3><span>🛏️</span> Allocate Student to Room</h3>
-                <button type="button" class="modal-close-btn" id="close-allocate-modal" title="Close Modal">✕</button>
-            </div>
-            <form id="allocate-student-form">
-                <div class="modal-body">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label for="alloc-fullname">Student Full Name</label>
-                            <input type="text" id="alloc-fullname" class="input-field" placeholder="e.g. Yash Patil" required style="padding-left:1rem;">
-                        </div>
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label for="alloc-prn">Student PRN / ID</label>
-                            <input type="text" id="alloc-prn" class="input-field" placeholder="e.g. 2026AI089" required style="padding-left:1rem;">
-                        </div>
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label for="alloc-dept">Department & Branch</label>
-                            <select id="alloc-dept" class="select-field" style="padding-left:1rem;">
-                                <option value="B.Tech AI & DS">B.Tech AI & DS</option>
-                                <option value="B.Tech Computer">B.Tech Computer</option>
-                                <option value="B.Tech IT">B.Tech IT</option>
-                                <option value="B.Tech Mechanical">B.Tech Mechanical</option>
-                                <option value="B.Tech Civil">B.Tech Civil</option>
-                            </select>
-                        </div>
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label for="alloc-year">Academic Year</label>
-                            <select id="alloc-year" class="select-field" style="padding-left:1rem;">
-                                <option value="Yr 1">1st Year (FE)</option>
-                                <option value="Yr 2">2nd Year (SE)</option>
-                                <option value="Yr 3" selected>3rd Year (TE)</option>
-                                <option value="Yr 4">4th Year (BE)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:0.75rem;">
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label for="alloc-block">Hostel Block / Wing</label>
-                            <select id="alloc-block" class="select-field" style="padding-left:1rem;">
-                                <option value="A-Block">A-Block (Boys Senior)</option>
-                                <option value="B-Block" selected>B-Block (Boys Junior)</option>
-                                <option value="C-Block">C-Block (Girls Hostel)</option>
-                            </select>
-                        </div>
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label for="alloc-room">Room Number</label>
-                            <input type="text" id="alloc-room" class="input-field" placeholder="e.g. Room 312" required style="padding-left:1rem;">
-                        </div>
-                    </div>
-                    <div class="input-group" style="margin-bottom:0;">
-                        <label for="alloc-fee">Fee Payment Status</label>
-                        <select id="alloc-fee" class="select-field" style="padding-left:1rem;">
-                            <option value="Paid ₹65,000">Paid ₹65,000 (Cleared)</option>
-                            <option value="Due ₹15,000">Installment Due (₹15,000)</option>
-                            <option value="Pending Verification">Pending Bank Clearance</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-action-sm" id="cancel-allocate-btn" style="padding:0.6rem 1.2rem;">Cancel</button>
-                    <button type="submit" class="submit-btn" id="submit-allocate-btn" style="width:auto; padding:0.6rem 1.4rem; background:var(--accent-admin); color:#fff;">
-                        <span>✓</span> Confirm Allocation
+        <!-- ============================================================= -->
+        <!-- 3. PARENT DASHBOARD APPLICATION VIEW (8 DEDICATED MODULES)     -->
+        <!-- ============================================================= -->
+        <div class="dashboard-view" id="parent-dashboard-view" style="display: none;">
+
+            <!-- Parent Top Header Bar -->
+            <header class="app-header parent-theme-header">
+                <div class="header-left">
+                    <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn-parent" aria-label="Toggle navigation">
+                        <span>☰</span>
                     </button>
+                    <div class="brand-inline">
+                        <img src="LOGO.PNG.png" alt="RCPIT Logo" class="header-logo">
+                        <div class="brand-text-block">
+                            <h2>RCPIT PARENT MONITORING PORTAL</h2>
+                            <span>Ward: <strong>Rohit Sharma (2026AI042)</strong> • Room B-304</span>
+                        </div>
+                    </div>
                 </div>
-            </form>
+
+                <div class="header-right">
+                    <!-- Live Campus Status -->
+                    <div class="live-status-card parent-live-card">
+                        <div class="status-indicator online"></div>
+                        <div class="live-text">
+                            <span class="status-label">Ward Status: <strong>Inside Campus Hostel</strong></span>
+                            <span class="clock-display live-clock-target">--:--:--</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Notifications -->
+                    <div class="header-action-wrapper">
+                        <button type="button" class="btn-icon-head parent-head-btn" onclick="switchParentSection('parent-section-notifications')" title="Important Parent Notifications">
+                            <span class="icon">🔔</span>
+                            <span class="notif-badge parent-badge" id="parent-notif-badge">4</span>
+                        </button>
+                    </div>
+
+                    <!-- Parent Profile Menu -->
+                    <div class="user-profile-menu parent-user-menu">
+                        <div class="user-avatar-circle parent-avatar">RS</div>
+                        <div class="user-meta-header">
+                            <span class="user-meta-name">Mr. Rajesh Sharma</span>
+                            <span class="user-meta-role">Parent of Rohit Sharma</span>
+                        </div>
+                        <button type="button" class="btn-signout" onclick="signOutToAuth()" title="Sign Out">
+                            <span>🚪</span>
+                            <span class="signout-text">Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Parent App Main Layout -->
+            <div class="app-main-layout">
+
+                <!-- PARENT SIDEBAR NAVIGATION (ALL 8 FEATURES) -->
+                <aside class="app-sidebar parent-sidebar" id="parent-sidebar">
+                    <div class="student-mini-profile parent-profile-badge">
+                        <div class="mini-avatar-wrap">
+                            <div class="mini-avatar parent-avatar">RS</div>
+                            <span class="mini-badge-verified parent-check" title="Linked Ward Verified">✓</span>
+                        </div>
+                        <h4>Mr. Rajesh Sharma</h4>
+                        <p class="mini-prn">Ward: <strong>Rohit Sharma</strong></p>
+                        <span class="mini-wing-pill parent-pill">PRN: 2026AI042 • Block B-304</span>
+                    </div>
+
+                    <div class="nav-section-title">PARENT MONITORING MODULES</div>
+                    <nav class="sidebar-nav">
+                        <!-- 1. Overview -->
+                        <button type="button" class="nav-link parent-nav active" data-target="parent-section-overview">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-label">Ward Overview</span>
+                        </button>
+
+                        <!-- 2. Child Profile -->
+                        <button type="button" class="nav-link parent-nav" data-target="parent-section-profile">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-label">Child Profile</span>
+                        </button>
+
+                        <!-- 3. Child Room Details -->
+                        <button type="button" class="nav-link parent-nav" data-target="parent-section-room">
+                            <span class="nav-icon">🛏️</span>
+                            <span class="nav-label">Child Room Details</span>
+                        </button>
+
+                        <!-- 4. Child Attendance -->
+                        <button type="button" class="nav-link parent-nav" data-target="parent-section-attendance">
+                            <span class="nav-icon">📅</span>
+                            <span class="nav-label">Child Attendance</span>
+                            <span class="nav-badge green">96.8%</span>
+                        </button>
+
+                        <!-- 5. Leave Req. Status -->
+                        <button type="button" class="nav-link parent-nav" data-target="parent-section-leave">
+                            <span class="nav-icon">📝</span>
+                            <span class="nav-label">Leave Req. Status</span>
+                            <span class="nav-badge parent-req-badge" id="parent-leave-count-badge">1 Active</span>
+                        </button>
+
+                        <!-- 6. Complaint Status -->
+                        <button type="button" class="nav-link parent-nav" data-target="parent-section-complaints">
+                            <span class="nav-icon">📋</span>
+                            <span class="nav-label">Complaint Status</span>
+                        </button>
+
+                        <!-- 7. Hostel Notices -->
+                        <button type="button" class="nav-link parent-nav" data-target="parent-section-notices">
+                            <span class="nav-icon">📢</span>
+                            <span class="nav-label">Hostel Notices</span>
+                        </button>
+
+                        <!-- 8. Imp. Notifications -->
+                        <button type="button" class="nav-link parent-nav" data-target="parent-section-notifications">
+                            <span class="nav-icon">🔔</span>
+                            <span class="nav-label">Imp. Notifications</span>
+                            <span class="nav-badge new">4 Alerts</span>
+                        </button>
+                    </nav>
+
+                    <!-- Parent Helpline Box -->
+                    <div class="sidebar-help-box parent-help-box">
+                        <div class="help-icon">🛡️</div>
+                        <div class="help-text">
+                            <strong>Chief Rector Contact</strong>
+                            <span>Dr. V. K. Patil: 9822334455</span>
+                        </div>
+                        <a href="tel:+919822334455" class="btn-helpline-call parent-call">Call</a>
+                    </div>
+                </aside>
+
+                <!-- PARENT CONTENT CANVAS -->
+                <main class="app-content-canvas">
+
+                    <!-- ========================================================= -->
+                    <!-- PARENT MODULE 1: WARD OVERVIEW                            -->
+                    <!-- ========================================================= -->
+                    <section class="content-section parent-section active" id="parent-section-overview">
+                        <div class="section-header-banner parent-banner">
+                            <div class="banner-text">
+                                <span class="greeting-tag parent-tag">Parent Portal Dashboard 👨‍👩‍👦</span>
+                                <h2>Ward Summary: Rohit Sharma</h2>
+                                <p>Real-time hostel presence, roll call records, pending leave consent, and official campus communications.</p>
+                            </div>
+                            <div class="banner-action">
+                                <button type="button" class="btn-banner-primary parent-primary-btn" onclick="switchParentSection('parent-section-leave')">
+                                    <span>✍️ Review Leave Requests</span>
+                                </button>
+                                <button type="button" class="btn-banner-secondary" onclick="switchParentSection('parent-section-attendance')">
+                                    <span>📅 View Attendance</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Parent KPI Stats -->
+                        <div class="kpi-grid">
+                            <div class="kpi-card" onclick="switchParentSection('parent-section-attendance')">
+                                <div class="kpi-icon-box emerald">📊</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Ward Roll Call Attendance</span>
+                                    <h3 class="kpi-val highlight-success">96.8% Rate</h3>
+                                    <span class="kpi-sub">✓ 28 / 29 Days Present (August)</span>
+                                </div>
+                            </div>
+
+                            <div class="kpi-card" onclick="switchParentSection('parent-section-room')">
+                                <div class="kpi-icon-box amber">🛏️</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Hostel Room Allotment</span>
+                                    <h3 class="kpi-val">Block B-304</h3>
+                                    <span class="kpi-sub">Bed #02 • Warden: Dr. V. K. Patil</span>
+                                </div>
+                            </div>
+
+                            <div class="kpi-card" onclick="switchParentSection('parent-section-leave')">
+                                <div class="kpi-icon-box violet">🎟️</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Active Gate Pass</span>
+                                    <h3 class="kpi-val highlight-success">1 Approved Pass</h3>
+                                    <span class="kpi-sub">Evening Outing till 09:30 PM</span>
+                                </div>
+                            </div>
+
+                            <div class="kpi-card" onclick="switchParentSection('parent-section-notifications')">
+                                <div class="kpi-icon-box blue">🔔</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Parent Alert Feed</span>
+                                    <h3 class="kpi-val">4 New Alerts</h3>
+                                    <span class="kpi-sub highlight-success">All Clear • No Disciplinary Issue</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Split Grid -->
+                        <div class="dashboard-split-grid">
+                            <div class="split-column">
+                                <!-- Ward Real-Time Gate Pass Tracking -->
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🎫</span>
+                                            <h3>Ward Active Leave & Gate Movement</h3>
+                                        </div>
+                                        <span class="status-pill active-approved">GATE EXIT AUTHORIZED</span>
+                                    </div>
+                                    <div class="gate-pass-ticket parent-ticket">
+                                        <div class="ticket-header">
+                                            <div>
+                                                <h4>LOCAL EVENING OUTING</h4>
+                                                <span class="ticket-code">Pass ID: #RCPIT-GP-8842</span>
+                                            </div>
+                                            <span class="badge-status ok">Rector Verified ✓</span>
+                                        </div>
+                                        <div class="ticket-body-grid">
+                                            <div>
+                                                <label>Enrolled Ward</label>
+                                                <p>Rohit Sharma (2026AI042)</p>
+                                            </div>
+                                            <div>
+                                                <label>Destination</label>
+                                                <p>Shirpur Market / Book Depot</p>
+                                            </div>
+                                            <div>
+                                                <label>Departure Time</label>
+                                                <p>16 Aug 2026, 05:30 PM</p>
+                                            </div>
+                                            <div>
+                                                <label>Expected Return</label>
+                                                <p class="return-time">16 Aug 2026, 09:30 PM</p>
+                                            </div>
+                                        </div>
+                                        <div class="ticket-footer">
+                                            <span>📱 Parent SMS Dispatch: <strong>Delivered to +91 9423199880 at 05:31 PM</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Roll Call Check -->
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">📅</span>
+                                            <h3>Latest Night Roll Call Verification</h3>
+                                        </div>
+                                        <button type="button" class="btn-link-action" onclick="switchParentSection('parent-section-attendance')">Full Log →</button>
+                                    </div>
+                                    <div class="compact-ticket-item">
+                                        <div class="ticket-status-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></div>
+                                        <div class="ticket-details">
+                                            <div class="ticket-title-row">
+                                                <strong>15 Aug 2026 Night Roll Call: PRESENT</strong>
+                                                <span class="status-badge-inline in-progress" style="background:rgba(16,185,129,0.15); color:#10b981;">Biometric Verified</span>
+                                            </div>
+                                            <p>Scanned at 09:48 PM in Room B-304 by Warden Dr. V. K. Patil.</p>
+                                            <span class="ticket-time-tag">Device: Bio-Handheld-04 • Wing B</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="split-column">
+                                <!-- Important Alerts Stream -->
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🔔</span>
+                                            <h3>Important Parent Notifications</h3>
+                                        </div>
+                                        <button type="button" class="btn-link-action" onclick="switchParentSection('parent-section-notifications')">View All (4) →</button>
+                                    </div>
+                                    <div class="notice-card-compact urgent">
+                                        <div class="notice-top">
+                                            <span class="badge-urgent">GATE MOVEMENT</span>
+                                            <span class="notice-date">Today, 05:31 PM</span>
+                                        </div>
+                                        <h4>Ward Gate Exit Logged at Main Gate 1</h4>
+                                        <p>Rohit Sharma exited campus gate for approved local outing. Expected back before 09:30 PM.</p>
+                                    </div>
+                                    <div class="notice-card-compact">
+                                        <div class="notice-top">
+                                            <span class="badge-general">ROLL CALL</span>
+                                            <span class="notice-date">Yesterday, 09:50 PM</span>
+                                        </div>
+                                        <h4>Night Roll Call Attendance Marked Present</h4>
+                                        <p>Ward biometric verification confirmed inside Room B-304.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Ward Fee & Warden Quick Connect -->
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">📌</span>
+                                            <h3>Hostel Administration & Fees</h3>
+                                        </div>
+                                    </div>
+                                    <div class="quick-summary-list">
+                                        <div class="summary-row">
+                                            <span>Annual Hostel Fee Status</span>
+                                            <strong class="highlight-success">₹65,000 Paid (Receipt #RCPIT-H-9921)</strong>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Hostel Mess Dues</span>
+                                            <strong class="highlight-success">₹0.00 (All Cleared)</strong>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Warden Office Contact</span>
+                                            <strong>Dr. V. K. Patil (+91 98223 34455)</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+
+                    <!-- ========================================================= -->
+                    <!-- PARENT MODULE 2: CHILD PROFILE                            -->
+                    <!-- ========================================================= -->
+                    <section class="content-section parent-section" id="parent-section-profile">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Child / Ward Official Profile</h2>
+                                <p>Master institutional and hostel resident records for your enrolled ward at RCPIT.</p>
+                            </div>
+                            <button type="button" class="btn-primary-action parent-primary-btn" onclick="window.print()">
+                                <span>🖨️ Print Ward Record</span>
+                            </button>
+                        </div>
+
+                        <div class="profile-layout-grid">
+                            <!-- Left: Child ID Card -->
+                            <div class="student-id-card-preview parent-card-border">
+                                <div class="id-card-header">
+                                    <img src="LOGO.PNG.png" alt="RCPIT Logo" class="id-logo">
+                                    <div>
+                                        <h3>R. C. PATEL INSTITUTE OF TECHNOLOGY</h3>
+                                        <span style="color:#10b981;">WARD RESIDENT MASTER CARD</span>
+                                    </div>
+                                </div>
+                                <div class="id-card-body">
+                                    <div class="id-photo-frame">
+                                        <div class="id-photo-placeholder parent-avatar">RS</div>
+                                        <span class="id-active-tag">VERIFIED WARD</span>
+                                    </div>
+                                    <div class="id-student-info">
+                                        <h3>Rohit Sharma</h3>
+                                        <p class="id-prn">PRN: <strong style="color:#10b981;">2026AI042</strong></p>
+                                        <p class="id-dept">Dept of Artificial Intelligence & Data Science</p>
+                                        <div class="id-room-badge">
+                                            <span>Hostel: <strong>Block B</strong></span>
+                                            <span>Room: <strong>B-304 (Bed 2)</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="id-card-footer">
+                                    <div class="barcode-mock">||| | |||| | | ||||| || | |||| |||</div>
+                                    <span>Enrolled Academic Session 2025 - 2026</span>
+                                </div>
+                            </div>
+
+                            <!-- Right: Detailed Profile -->
+                            <div class="profile-details-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🎓</span>
+                                            <h3>Academic & Department Records</h3>
+                                        </div>
+                                    </div>
+                                    <div class="details-form-grid">
+                                        <div class="field-item">
+                                            <label>Student Full Name</label>
+                                            <div class="field-val">Rohit Devendra Sharma</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Permanent PRN</label>
+                                            <div class="field-val font-mono">2026AI042</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Course & Branch</label>
+                                            <div class="field-val">B.Tech - AI & Data Science</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Academic Year</label>
+                                            <div class="field-val">Third Year (Semester VI)</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Student Phone</label>
+                                            <div class="field-val font-mono">+91 98765 43210</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Student Email</label>
+                                            <div class="field-val font-mono">rohit.sharma@rcpit.ac.in</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Blood Group</label>
+                                            <div class="field-val highlight-danger">O +ve</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Faculty Mentor / Guide</label>
+                                            <div class="field-val">Prof. S. N. Patil (Dept AI&DS)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">🏢</span>
+                                            <h3>Hostel Wing & Security Allotment</h3>
+                                        </div>
+                                    </div>
+                                    <div class="details-form-grid">
+                                        <div class="field-item">
+                                            <label>Hostel Wing</label>
+                                            <div class="field-val">Block B (Boys Senior Hostel)</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Room Number</label>
+                                            <div class="field-val">Room B-304 (3rd Floor)</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Bed Allocation</label>
+                                            <div class="field-val">Bed #02 (Window Side)</div>
+                                        </div>
+                                        <div class="field-item">
+                                            <label>Chief Rector In-Charge</label>
+                                            <div class="field-val">Dr. V. K. Patil (Mob: 9822334455)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+
+                    <!-- ========================================================= -->
+                    <!-- PARENT MODULE 3: CHILD ROOM DETAILS                       -->
+                    <!-- ========================================================= -->
+                    <section class="content-section parent-section" id="parent-section-room">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Child Room Details & Fellow Roommates</h2>
+                                <p>Inspection overview of your ward's room, room inventory status, and verified roommate contacts.</p>
+                            </div>
+                        </div>
+
+                        <!-- Room Hero Card -->
+                        <div class="room-hero-card parent-hero-card">
+                            <div class="room-hero-left">
+                                <div class="room-badge-large parent-badge-large">B-304</div>
+                                <div>
+                                    <h3>Hostel Block B • 3rd Floor (East Wing)</h3>
+                                    <p>3-Sharing Deluxe Student Room with Attached Washroom & Balcony</p>
+                                    <div class="room-tags">
+                                        <span class="tag-pill">🛏️ 3 Bed Capacity</span>
+                                        <span class="tag-pill">📶 High-Speed LAN + Wi-Fi</span>
+                                        <span class="tag-pill">⚡ 24/7 Power Backup</span>
+                                        <span class="tag-pill">🚿 Solar Hot Water</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="room-hero-right">
+                                <div class="bed-allocated-box parent-bed-box">
+                                    <span>WARD ALLOCATED BED</span>
+                                    <h2 style="color:#10b981;">BED #02</h2>
+                                    <small>East Window Facing</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-split-grid">
+                            <!-- Roommates -->
+                            <div class="split-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">👥</span>
+                                            <h3>Ward's Assigned Roommates</h3>
+                                        </div>
+                                        <span class="badge-count">3 / 3 Verified Residents</span>
+                                    </div>
+                                    <div class="roommates-list">
+                                        <div class="roommate-card current-user parent-user-card">
+                                            <div class="roommate-avatar self" style="background:#10b981;">RS</div>
+                                            <div class="roommate-info">
+                                                <div class="roommate-name-row">
+                                                    <h4>Rohit Sharma <span class="self-tag" style="color:#10b981;">(Your Child)</span></h4>
+                                                    <span class="bed-pill">Bed #02</span>
+                                                </div>
+                                                <p>PRN: 2026AI042 • B.Tech AI & DS (Yr 3)</p>
+                                                <div class="roommate-contact">
+                                                    <span>📞 +91 98765 43210</span>
+                                                    <span>📍 Hometown: Nashik</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="roommate-card">
+                                            <div class="roommate-avatar">AP</div>
+                                            <div class="roommate-info">
+                                                <div class="roommate-name-row">
+                                                    <h4>Aditya Patil</h4>
+                                                    <span class="bed-pill">Bed #01</span>
+                                                </div>
+                                                <p>PRN: 2026CS108 • B.Tech Computer Engg (Yr 3)</p>
+                                                <div class="roommate-contact">
+                                                    <span>📞 +91 98234 11223</span>
+                                                    <span>📍 Hometown: Jalgaon</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="roommate-card">
+                                            <div class="roommate-avatar">SK</div>
+                                            <div class="roommate-info">
+                                                <div class="roommate-name-row">
+                                                    <h4>Sameer Kulkarni</h4>
+                                                    <span class="bed-pill">Bed #03</span>
+                                                </div>
+                                                <p>PRN: 2026IT055 • B.Tech Information Tech (Yr 3)</p>
+                                                <div class="roommate-contact">
+                                                    <span>📞 +91 94032 88771</span>
+                                                    <span>📍 Hometown: Pune</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inventory -->
+                            <div class="split-column">
+                                <div class="panel-box">
+                                    <div class="panel-box-header">
+                                        <div class="panel-title-group">
+                                            <span class="panel-emoji">📦</span>
+                                            <h3>Room Inventory & Safety Status</h3>
+                                        </div>
+                                        <span class="badge-status ok">Inspected by Warden ✓</span>
+                                    </div>
+                                    <div class="inventory-grid">
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">🛏️</span>
+                                            <div class="inv-info"><strong>Study Cot & Mattress</strong><span>Bed #2 Allocated</span></div>
+                                            <span class="inv-status good">Good</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">📚</span>
+                                            <div class="inv-info"><strong>Study Desk & Chair</strong><span>Personal study unit</span></div>
+                                            <span class="inv-status good">Good</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">🚪</span>
+                                            <div class="inv-info"><strong>Steel Locker Almirah</strong><span>Key issued to ward</span></div>
+                                            <span class="inv-status good">Good</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">💡</span>
+                                            <div class="inv-info"><strong>LED Tube light</strong><span>20W Power Saving</span></div>
+                                            <span class="inv-status good">Working</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">🌀</span>
+                                            <div class="inv-info"><strong>Ceiling Fan & Speed Regulator</strong><span>Maintenance in progress</span></div>
+                                            <span class="inv-status repair">Staff Assigned</span>
+                                        </div>
+                                        <div class="inventory-item">
+                                            <span class="inv-icon">🌐</span>
+                                            <div class="inv-info"><strong>LAN Internet Connection</strong><span>1000 Mbps High Speed</span></div>
+                                            <span class="inv-status good">Active</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+
+                    <!-- ========================================================= -->
+                    <!-- PARENT MODULE 4: CHILD ATTENDANCE                         -->
+                    <!-- ========================================================= -->
+                    <section class="content-section parent-section" id="parent-section-attendance">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Child Attendance & Roll Call Logs</h2>
+                                <p>Daily 09:45 PM night roll call inspection logs and monthly attendance statistics for your ward.</p>
+                            </div>
+                            <div class="attendance-filter-month">
+                                <span>Month: <strong>August 2026</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-grid">
+                            <div class="kpi-card">
+                                <div class="kpi-icon-box emerald">📈</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Monthly Attendance Percentage</span>
+                                    <h3 class="kpi-val highlight-success">96.8% Rate</h3>
+                                    <span class="kpi-sub">Excellent Attendance Record</span>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon-box emerald">✅</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Total Days Present</span>
+                                    <h3 class="kpi-val">28 Days</h3>
+                                    <span class="kpi-sub">Biometric verified in room</span>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon-box blue">🏖️</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Excused Home Leaves</span>
+                                    <h3 class="kpi-val">1 Day</h3>
+                                    <span class="kpi-sub">Approved with parent consent</span>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon-box amber">⚠️</div>
+                                <div class="kpi-info">
+                                    <span class="kpi-label">Unexcused Absences</span>
+                                    <h3 class="kpi-val highlight-success">0 Days</h3>
+                                    <span class="kpi-sub">Clean hostel record</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-box">
+                            <div class="panel-box-header">
+                                <div class="panel-title-group">
+                                    <span class="panel-emoji">📋</span>
+                                    <h3>Ward's Daily Night Roll Call Attendance Log (August 2026)</h3>
+                                </div>
+                                <span class="badge-status ok">Daily 09:45 PM Roll Call</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="app-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date & Day</th>
+                                            <th>Inspection Time</th>
+                                            <th>Verification Mode</th>
+                                            <th>Warden In-Charge</th>
+                                            <th>Attendance Status</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="parent-attendance-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+
+                    <!-- ========================================================= -->
+                    <!-- PARENT MODULE 5: LEAVE REQ. STATUS & CONSENT             -->
+                    <!-- ========================================================= -->
+                    <section class="content-section parent-section" id="parent-section-leave">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Leave Requests & Parent Digital Consent</h2>
+                                <p>Review, digitally consent or decline your ward's leave applications, and view active gate passes.</p>
+                            </div>
+                        </div>
+
+                        <!-- Pending Parent Consent Notice Box -->
+                        <div class="panel-box" id="parent-consent-box" style="margin-bottom: 1.5rem; border-color: rgba(16, 185, 129, 0.4);">
+                            <div class="panel-box-header">
+                                <div class="panel-title-group">
+                                    <span class="panel-emoji">📲</span>
+                                    <h3>Pending Ward Request for Parent Consent</h3>
+                                </div>
+                                <span class="status-pill pending" id="consent-status-badge">ACTION REQUIRED</span>
+                            </div>
+                            <div style="background: rgba(6, 9, 19, 0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-pure);">Weekend Home Visit Request</h4>
+                                    <span style="color:#10b981; font-weight:700; font-size:0.85rem;">Friday 05:00 PM to Sunday 08:30 PM</span>
+                                </div>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                                    <strong>Purpose stated by ward:</strong> "Traveling to home (Nashik) via MSRTC Bus for cousin's family celebration. Departure planned Friday evening."
+                                </p>
+                                <div style="display:flex; gap:0.75rem; flex-wrap:wrap;" id="consent-action-buttons">
+                                    <button type="button" class="btn-submit-main parent-primary-btn" id="btn-parent-consent-approve" style="background:#10b981; color:#060913;">
+                                        <span>✓ Grant Parent Digital Consent</span>
+                                    </button>
+                                    <button type="button" class="btn-reset-main" id="btn-parent-consent-reject" style="color:#f87171; border-color:rgba(239,68,68,0.35);">
+                                        <span>✕ Decline Request</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ward Pass History -->
+                        <div class="panel-box">
+                            <div class="panel-box-header">
+                                <div class="panel-title-group">
+                                    <span class="panel-emoji">🎫</span>
+                                    <h3>Ward's Gate Pass Status & Travel History</h3>
+                                </div>
+                            </div>
+                            <div class="passes-list" id="parent-passes-container"></div>
+                        </div>
+                    </section>
+
+
+                    <!-- ========================================================= -->
+                    <!-- PARENT MODULE 6: COMPLAINT STATUS                         -->
+                    <!-- ========================================================= -->
+                    <section class="content-section parent-section" id="parent-section-complaints">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Ward's Room Maintenance & Complaint Status</h2>
+                                <p>Review room fixture issues, maintenance tickets, and repairs requested by your ward.</p>
+                            </div>
+                        </div>
+
+                        <div class="filter-bar">
+                            <div class="filter-tabs">
+                                <button type="button" class="filter-tab parent-cfilter active" data-filter="all">All Complaints (3)</button>
+                                <button type="button" class="filter-tab parent-cfilter" data-filter="In Progress">In Progress (1)</button>
+                                <button type="button" class="filter-tab parent-cfilter" data-filter="Resolved">Resolved (2)</button>
+                            </div>
+                        </div>
+
+                        <div class="complaints-card-list" id="parent-complaints-container"></div>
+                    </section>
+
+
+                    <!-- ========================================================= -->
+                    <!-- PARENT MODULE 7: HOSTEL NOTICES                           -->
+                    <!-- ========================================================= -->
+                    <section class="content-section parent-section" id="parent-section-notices">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Official Hostel Notices & Announcements</h2>
+                                <p>Administrative circulars, roll call directives, mess schedules, and safety protocols for parents & students.</p>
+                            </div>
+                        </div>
+
+                        <div class="filter-bar">
+                            <div class="filter-tabs">
+                                <button type="button" class="filter-tab parent-nfilter active" data-notice-cat="all">All Notices (4)</button>
+                                <button type="button" class="filter-tab parent-nfilter" data-notice-cat="urgent">Urgent Directives (1)</button>
+                                <button type="button" class="filter-tab parent-nfilter" data-notice-cat="mess">Mess & Dining (1)</button>
+                                <button type="button" class="filter-tab parent-nfilter" data-notice-cat="general">General (2)</button>
+                            </div>
+                        </div>
+
+                        <div class="notices-grid" id="parent-notices-container"></div>
+                    </section>
+
+
+                    <!-- ========================================================= -->
+                    <!-- PARENT MODULE 8: IMP. NOTIFICATIONS                       -->
+                    <!-- ========================================================= -->
+                    <section class="content-section parent-section" id="parent-section-notifications">
+                        <div class="section-title-wrap">
+                            <div>
+                                <h2>Important Parent Notifications & Alerts</h2>
+                                <p>Automated SMS dispatches, gate entry/exit logs, fee receipts, and official Warden advisories sent to your contact.</p>
+                            </div>
+                            <button type="button" class="btn-secondary-action" onclick="showToast('All notifications marked as read', 'success')">
+                                <span>✓ Mark All as Read</span>
+                            </button>
+                        </div>
+
+                        <!-- Important Notification Feed -->
+                        <div class="notices-grid" id="parent-alerts-feed">
+                            <!-- Alert 1 -->
+                            <div class="notice-detail-card urgent" style="border-left-color: #38bdf8;">
+                                <div class="notice-badge-row">
+                                    <span class="badge-general" style="background:rgba(56,189,248,0.18); color:#38bdf8;">🚪 GATE MOVEMENT LOG</span>
+                                    <span class="notice-time-pill">Today, 05:31 PM</span>
+                                </div>
+                                <h3>Ward Exited Campus Main Gate</h3>
+                                <p class="notice-body-full">
+                                    Your ward <strong>Rohit Sharma (2026AI042)</strong> has departed through Main Gate 1 on approved Local Evening Outing Pass <code>#RCPIT-GP-8842</code>. Biometric gate scanning verified. Return deadline is 09:30 PM tonight.
+                                </p>
+                                <div class="notice-card-footer">
+                                    <span>Dispatch: <strong>SMS Delivered to +91 9423199880</strong></span>
+                                    <span>Gate Officer: <strong>Security Post 1</strong></span>
+                                </div>
+                            </div>
+
+                            <!-- Alert 2 -->
+                            <div class="notice-detail-card urgent" style="border-left-color: #10b981;">
+                                <div class="notice-badge-row">
+                                    <span class="badge-mess" style="background:rgba(16,185,129,0.18); color:#10b981;">📋 NIGHT ROLL CALL</span>
+                                    <span class="notice-time-pill">15 Aug 2026, 09:50 PM</span>
+                                </div>
+                                <h3>Night Roll Call Verified: PRESENT</h3>
+                                <p class="notice-body-full">
+                                    Your ward was physically present in Room B-304 during the 09:45 PM night inspection conducted by Warden Dr. V. K. Patil. Biometric scanner match recorded.
+                                </p>
+                                <div class="notice-card-footer">
+                                    <span>Status: <strong>Present in Room</strong></span>
+                                    <span>Inspector: <strong>Dr. V. K. Patil (Chief Rector)</strong></span>
+                                </div>
+                            </div>
+
+                            <!-- Alert 3 -->
+                            <div class="notice-detail-card urgent" style="border-left-color: #f59e0b;">
+                                <div class="notice-badge-row">
+                                    <span class="badge-urgent" style="background:rgba(245,158,11,0.18); color:#f59e0b;">📲 PARENT CONSENT REQUIRED</span>
+                                    <span class="notice-time-pill">14 Aug 2026, 11:00 AM</span>
+                                </div>
+                                <h3>Weekend Leave Consent Request from Ward</h3>
+                                <p class="notice-body-full">
+                                    Rohit Sharma has submitted a request for Weekend Home Visit from 22 Aug to 24 Aug. Please review and provide digital consent under the <em>Leave Req. Status</em> tab.
+                                </p>
+                                <div class="notice-card-footer">
+                                    <span>Action: <strong>Pending Parent Digital Signature</strong></span>
+                                </div>
+                            </div>
+
+                            <!-- Alert 4 -->
+                            <div class="notice-detail-card urgent" style="border-left-color: #8b5cf6;">
+                                <div class="notice-badge-row">
+                                    <span class="badge-general" style="background:rgba(139,92,246,0.18); color:#a78bfa;">🧾 FEE PAYMENT RECEIPT</span>
+                                    <span class="notice-time-pill">01 July 2026</span>
+                                </div>
+                                <h3>Annual Hostel & Mess Fee Payment Cleared</h3>
+                                <p class="notice-body-full">
+                                    Official fee receipt <code>#RCPIT-H-9921</code> generated. Full academic year hostel fee of <strong>₹65,000</strong> received with zero dues remaining.
+                                </p>
+                                <div class="notice-card-footer">
+                                    <span>Payment Mode: <strong>Online NetBanking</strong></span>
+                                    <span>Account: <strong>RCPIT Central Hostel Trust</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </main>
+            </div>
         </div>
+
     </div>
+
+    <!-- Notification Toast Element -->
+    <div class="toast-container" id="toast-container"></div>
 
 </body>
 </html>

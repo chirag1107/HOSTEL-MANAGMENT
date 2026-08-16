@@ -1,61 +1,38 @@
-# RCPIT HOSTEL MANAGEMENT SYSTEM
+# RCPIT STUDENT & PARENT HOSTEL MANAGEMENT PORTAL
 
-An integrated, role-based hostel management automation suite engineered for **R. C. Patel Institute of Technology**.
-
----
-
-## 🏛️ System Architecture & Workflow
-
-```text
-========================================================================================
-                                RCPIT HOSTEL APP WORK FLOW
-========================================================================================
-
-  🎓 STUDENT                  👨‍👩‍👦 PARENT                 🛡️ RECTOR / WARDEN          ⚡ ADMIN
-(Pass & Complaints)     (Consent & Attendance)      (Approvals & Roll Call)     (Master Registry)
-        \                         /                          /                         /
-         \                       /                          /                         /
-          \                     /                          /                         /
-           +-------------------+--------------------------+-------------------------+
-                                              |
-                                      [ USER INTERFACE ]
-                                    (Kunal - Frontend Lead)
-                                              |
-                                     (REST API Requests)
-                                              |
-                                              v
-                                     [ BACKEND ENGINE ]
-                                    (Bhavesh - Server Logic)
-                                              |
-                                         (CRUD Ops)
-                                              |
-                                              v
-                                    [ DATABASE STORAGE ]
-                                    (Chirag - Database Lead)
-                                (Himanshu - Co-Lead / Helper)
-                                              |
-                                  (Hosting & Live Deployment)
-                                              |
-                                              v
-                                      [ LIVE DEPLOYMENT ]
-```
+An integrated, role-based hostel management automation suite engineered for **R. C. Patel Institute of Technology, Shirpur**.
 
 ---
 
-## 🔑 Role Separation & Access Control
+## 🏛️ Portal Modules Overview
 
-| Role                   | Access Identifier                     | Special Credentials         | Functional Modules                                                                                   |
-| :--------------------- | :------------------------------------ | :-------------------------- | :--------------------------------------------------------------------------------------------------- |
-| **🎓 Student**         | Student ID / PRN (e.g. `2026AI042`)   | Student Password            | Gate Pass & Leave Generator, Room Maintenance Tickets, Mess Smart Token & Menu, Fee Status           |
-| **👨‍👩‍👦 Parent**          | Registered Mobile / Email             | Ward Student ID + Password  | Ward Real-time In/Out Logs, Parent Digital Consent for Passes, Fee Receipts, Warden Helpline         |
-| **🛡️ Rector (Warden)** | Rector Staff ID (e.g. `REC-104`)      | Staff Password + Block Wing | Gate Pass Approval Queue, Night Roll Call / Inspection, Instant Broadcast Notices, Disciplinary Logs |
-| **⚡ System Admin**    | Master Admin ID (`admin@rcpit.ac.in`) | Master Password + 2FA PIN   | Room Allocation Matrix, Student Master DB, Mess & AMC Billing, Security Audit Logs & CSV Export      |
+### 🎓 1. Student Portal (9 Modules)
+1. **🔑 Student Login**: PRN / Enrollment ID authentication with 1-Click Demo Login.
+2. **👤 Student Profile**: Personal & academic credentials, digital resident ID card, and printable resident slip.
+3. **🛏️ Room Details**: Allocated room (`B-304`), roommates directory, and furniture/fixture inventory status.
+4. **✍️ Complaint Submit**: Categorized grievance lodging (Electrical, Plumbing, Wi-Fi, Carpentry, Housekeeping, Mess).
+5. **📋 Complaint Status**: Real-time ticket tracker with filters (*All, In Progress, Pending, Resolved*) and search.
+6. **📅 Attendance & Night Roll Call**: Daily 09:45 PM night roll call logs and monthly attendance statistics.
+7. **📝 Leave Request & Gate Pass**: Outing and weekend pass generator with QR code and rector signature.
+8. **📢 Hostel Notices**: Administrative circulars, mess feast menus, and curfew rules.
+9. **👨‍👩‍👦 Parent Details**: Father/Mother contacts, WhatsApp links, permanent address, and local guardian info.
 
 ---
 
-## 🚀 Key Features
+### 👨‍👩‍👦 2. Parent Portal (8 Modules)
+1. **🔑 Parent Login**: Registered parent mobile/email and linked ward PRN with instant demo access.
+2. **👤 Child Profile**: Institutional resident records and academic status of enrolled ward.
+3. **🛏️ Child Room Details**: Ward room overview, roommate directory, and safety inspection status.
+4. **📅 Child Attendance**: Daily biometric night roll call records and monthly attendance metrics.
+5. **📝 Leave Req. Status**: Real-time pass status with **Parent Digital Consent / Decline** action.
+6. **📋 Complaint Status**: Tracking room maintenance tickets raised by the ward.
+7. **📢 Hostel Notices**: Official administrative advisories, mess committee notices, and circulars.
+8. **🔔 Imp. Notifications**: Automated SMS dispatch logs, main gate exit/entry records, and fee payment receipts.
 
-- **Dynamic Role Switcher**: Instant switching between 4 roles with contextual theme palettes and input controls.
-- **Glassmorphism Dark UI**: Modern responsive design with smooth animations and ambient lighting.
-- **Interactive Control Panels**: Functional tables with instant state management (Approve/Reject passes, Roll-call toggles, Maintenance logging).
-- **Direct Demo Access**: One-click demo sign-in for testing any role instantly.
+---
+
+## 🚀 Running Locally
+
+The app runs on standard web technologies:
+- **Frontend Path**: `frontend/INDEX.HTML`
+- **Local Server URL**: `http://localhost:8080` (or `http://localhost:8080/INDEX.HTML`)
