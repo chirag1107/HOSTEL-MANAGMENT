@@ -59,3 +59,67 @@ An integrated, role-based hostel management automation suite engineered for **R.
 - **Glassmorphism Dark UI**: Modern responsive design with smooth animations and ambient lighting.
 - **Interactive Control Panels**: Functional tables with instant state management (Approve/Reject passes, Roll-call toggles, Maintenance logging).
 - **Direct Demo Access**: One-click demo sign-in for testing any role instantly.
+
+
+
+
+SMART HOSTEL MANAGEMENT - DEVELOPMENT FLOW
+
+                    START
+                      │
+                      ▼
+              Project Setup
+                      │
+                      ▼
+              Frontend Created
+                      │
+                      ▼
+          ┌─────────────────────┐
+          │   Backend Setup     │
+          │  Flask + Flask-CORS │
+          └─────────────────────┘
+                      │
+                      ▼
+                app.py Created
+                      │
+                      ▼
+             Flask Server Tested
+                      │
+                      ▼
+          Backend Setup Completed
+                      │
+                      ▼
+          ┌─────────────────────┐
+          │ DATABASE CREATION   │
+          │       CHIRAG        │
+          └─────────────────────┘
+                      │
+                      ▼
+          Database Tables & Fields
+                 Required
+                      │
+                      ▼
+          ┌─────────────────────┐
+          │   BACKEND APIs      │
+          │      BHAVESH        │
+          └─────────────────────┘
+                      │
+                      ▼
+        Backend + Database Integration
+                      │
+                      ▼
+          Frontend + Backend Integration
+                      │
+                      ▼
+               FINAL PROJECT
+
+
+
+CURRENT STATUS:
+
+✅ Frontend - Completed
+✅ Backend Initial Setup - Completed
+⏳ Database - Pending (Chirag)
+⏳ Backend APIs - Will start after database structure
+⏳ Database Integration - Pending
+⏳ Frontend-Backend Integration - Pending
