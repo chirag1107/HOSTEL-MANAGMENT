@@ -1,10 +1,65 @@
 /**
  * RCPIT HOSTEL PORTAL - STUDENT & PARENTS MANAGEMENT SYSTEM
- * High-performance, reactive client controller with real-time feedback & dual role portals
+ * Dynamic, reactive frontend controller connected to Flask REST API & SQLite Database
  */
 
 // ==========================================================================
-// 1. GLOBAL STATE & MASTER DATA
+// 1. API CONFIGURATION & CLIENT SERVICE
+// ==========================================================================
+
+const API_CONFIG = {
+    BASE_URL: 'http://127.0.0.1:5000/api',
+    IS_CONNECTED: false
+};
+
+/**
+ * Robust API helper with JSON handling and graceful offline fallback.
+ */
+async function apiCall(endpoint, method = 'GET', body = null) {
+    const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+    const options = {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    };
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({ message: `HTTP Error ${response.status}` }));
+            throw new Error(errData.message || `Request failed with status ${response.status}`);
+        }
+        API_CONFIG.IS_CONNECTED = true;
+        updateServerStatusIndicator(true);
+        return await response.json();
+    } catch (error) {
+        console.warn(`[API] Connection warning on ${endpoint}:`, error.message);
+        API_CONFIG.IS_CONNECTED = false;
+        updateServerStatusIndicator(false);
+        return { success: false, offline: true, error: error.message };
+    }
+}
+
+function updateServerStatusIndicator(isOnline) {
+    document.querySelectorAll('.status-indicator').forEach(ind => {
+        if (isOnline) {
+            ind.classList.remove('offline');
+            ind.classList.add('online');
+        } else {
+            ind.classList.remove('online');
+            ind.classList.add('offline');
+        }
+    });
+}
+
+
+// ==========================================================================
+// 2. GLOBAL STATE & MASTER DATA
 // ==========================================================================
 
 const APP_STATE = {
@@ -20,129 +75,24 @@ const APP_STATE = {
         email: 'rohit.sharma@rcpit.ac.in',
         phone: '+91 98765 43210',
         parentName: 'Mr. Rajesh Sharma',
-        parentPhone: '+91 94231 99880'
+        parentPhone: '9423199880'
     },
-    complaints: [
-        {
-            id: 'TCK-309',
-            category: 'Electrical',
-            title: 'Ceiling Fan Speed Regulator Issue',
-            room: 'Room B-304 (Bed 2)',
-            priority: 'Medium',
-            status: 'In Progress',
-            date: 'Today, 10:15 AM',
-            description: 'Fan is operating only at speed 5. Knob cannot decrease speed. Please repair regulator.',
-            assignedTo: 'Mr. Kailash (Electrician)',
-            technicianPhone: '+91 98220 54321',
-            scheduledTime: 'Today, 04:30 PM'
-        },
-        {
-            id: 'TCK-294',
-            category: 'Plumbing',
-            title: 'Bathroom Washbasin Tap Dripping',
-            room: 'Room B-304',
-            priority: 'Low',
-            status: 'Resolved',
-            date: '10 Aug 2026',
-            description: 'Continuous water drip in washbasin tap causing wastage.',
-            assignedTo: 'Mr. Santosh (Plumber)',
-            resolvedDate: '11 Aug 2026, 03:00 PM'
-        },
-        {
-            id: 'TCK-281',
-            category: 'Internet / Wi-Fi',
-            title: 'Wi-Fi Access Point Frequent Disconnects',
-            room: 'Hostel Block B (3rd Floor)',
-            priority: 'High',
-            status: 'Resolved',
-            date: '02 Aug 2026',
-            description: 'Speed drops below 1 Mbps and drops frequent ping packets.',
-            assignedTo: 'Campus IT Network Team',
-            resolvedDate: '02 Aug 2026, 06:15 PM'
-        }
-    ],
-    passes: [
-        {
-            id: 'RCPIT-GP-8842',
-            type: 'Local Evening Outing (Market)',
-            destination: 'Shirpur Market / Book Depot',
-            from: '16 Aug 2026, 05:30 PM',
-            to: '16 Aug 2026, 09:30 PM',
-            reason: 'Purchase engineering drawing sheets & reference books.',
-            status: 'Approved',
-            approvedBy: 'Dr. V. K. Patil (Chief Rector)',
-            active: true
-        },
-        {
-            id: 'RCPIT-GP-8711',
-            type: 'Weekend Home Visit',
-            destination: 'Nashik (Flat 402, Gangapur Road)',
-            from: '08 Aug 2026, 05:00 PM',
-            to: '10 Aug 2026, 08:00 PM',
-            reason: 'Sister birthday function and family gathering.',
-            status: 'Completed',
-            approvedBy: 'Dr. V. K. Patil (Chief Rector)',
-            active: false
-        }
-    ],
-    attendanceData: [
-        { date: '16 Aug 2026 (Today)', time: 'Scheduled 09:45 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Pending Tonight', remarks: 'Roll call scheduled' },
-        { date: '15 Aug 2026 (Sat)', time: '09:48 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'In-Room Verified' },
-        { date: '14 Aug 2026 (Fri)', time: '09:46 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'In-Room Verified' },
-        { date: '13 Aug 2026 (Thu)', time: '09:50 PM', mode: 'Biometric Handheld', warden: 'Prof. R. M. Deore', status: 'Present', remarks: 'In-Room Verified' },
-        { date: '12 Aug 2026 (Wed)', time: '09:44 PM', mode: 'Biometric Handheld', warden: 'Prof. R. M. Deore', status: 'Present', remarks: 'In-Room Verified' },
-        { date: '11 Aug 2026 (Tue)', time: '09:47 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'In-Room Verified' },
-        { date: '10 Aug 2026 (Mon)', time: '09:45 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'Returned from Home' },
-        { date: '09 Aug 2026 (Sun)', time: '--:--', mode: 'Official Gate Pass', warden: 'Dr. V. K. Patil', status: 'On Leave', remarks: 'Weekend Home Leave #8711' },
-        { date: '08 Aug 2026 (Sat)', time: '09:52 PM', mode: 'Biometric Handheld', warden: 'Dr. V. K. Patil', status: 'Present', remarks: 'In-Room Verified' },
-        { date: '07 Aug 2026 (Fri)', time: '09:46 PM', mode: 'Biometric Handheld', warden: 'Prof. R. M. Deore', status: 'Present', remarks: 'In-Room Verified' }
-    ],
-    notices: [
-        {
-            id: 'NTC-801',
-            title: 'Hostel Night Roll Call Timings Strict Compliance',
-            category: 'urgent',
-            catLabel: 'URGENT NOTICE',
-            date: '16 Aug 2026, 04:30 PM',
-            body: 'All resident students of Block A, B & C must strictly report inside their allotted rooms by 09:45 PM for biometric roll call. Unexcused absence will trigger automated SMS alerts to registered parent contacts.',
-            author: 'Chief Rector Office, RCPIT'
-        },
-        {
-            id: 'NTC-798',
-            title: 'Sunday Special Feast Dinner Menu - Mess Wing B',
-            category: 'mess',
-            catLabel: 'MESS COMMITTEE',
-            date: '15 Aug 2026',
-            body: 'Special Dinner Feast scheduled for this Sunday from 07:30 PM to 09:45 PM. Menu includes Paneer Butter Masala, Gulab Jamun, Jeera Rice, and Sweet Kheer.',
-            author: 'Hostel Mess & Dining Committee'
-        },
-        {
-            id: 'NTC-789',
-            title: 'Mandatory Digital Gate Pass via Portal for Evening Outings',
-            category: 'general',
-            catLabel: 'GENERAL CIRCULAR',
-            date: '12 Aug 2026',
-            body: 'All local outing requests must be lodged via the Hostel Portal 1 hour before departure. Security guards at Gate 1 & 2 will scan QR passes on student smartphones before allowing exit.',
-            author: 'Campus Security & Rectorate'
-        },
-        {
-            id: 'NTC-775',
-            title: 'Annual Room Inventory & Electrical Fixture Audit',
-            category: 'general',
-            catLabel: 'ADMINISTRATION',
-            date: '05 Aug 2026',
-            body: 'Annual inspection for fans, lights, tables, and study cots is currently underway. Please submit repair tickets via your student portal for any faulty regulators or taps.',
-            author: 'Hostel Maintenance Dept'
-        }
-    ]
+    studentProfile: null,
+    parentProfile: null,
+    complaints: [],
+    passes: [],
+    attendanceData: [],
+    attendanceStats: null,
+    notices: [],
+    parentNotifications: []
 };
 
 
 // ==========================================================================
-// 2. DOM INITIALIZATION & EVENT LISTENERS
+// 3. DOM INITIALIZATION & LIFECYCLE
 // ==========================================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initLiveClock();
     initAuthTabs();
     initAuthForms();
@@ -151,17 +101,35 @@ document.addEventListener('DOMContentLoaded', () => {
     initLeaveSystem();
     initNoticesFiltering();
     initParentConsentActions();
-    
-    // Initial Render
-    renderAllComplaints();
-    renderAllPasses();
-    renderAttendanceTables();
-    renderNotices('all');
+
+    // Check backend health and load initial data
+    await checkBackendHealth();
+    await loadInitialData();
 });
+
+async function checkBackendHealth() {
+    const health = await apiCall('/health');
+    if (health && health.success) {
+        console.log('[System] Backend API & SQLite connected successfully.');
+    } else {
+        console.log('[System] Backend running in local/fallback mode.');
+    }
+}
+
+async function loadInitialData() {
+    await Promise.all([
+        fetchStudentProfile('2026AI042'),
+        fetchComplaints(),
+        fetchPasses('2026AI042'),
+        fetchAttendance('2026AI042'),
+        fetchNotices('all'),
+        fetchParentNotifications('9423199880')
+    ]);
+}
 
 
 // ==========================================================================
-// 3. LIVE CLOCK CONTROLLER
+// 4. LIVE CLOCK CONTROLLER
 // ==========================================================================
 
 function initLiveClock() {
@@ -183,33 +151,33 @@ function initLiveClock() {
 
 
 // ==========================================================================
-// 4. AUTHENTICATION & ROLE SWITCHER (STUDENT / PARENTS)
+// 5. AUTHENTICATION & ROLE SWITCHER (STUDENT / PARENTS)
 // ==========================================================================
 
 function initAuthTabs() {
     const btnStudent = document.getElementById('role-btn-student');
     const btnParent = document.getElementById('role-btn-parent');
-    
+
     if (btnStudent && btnParent) {
         btnStudent.addEventListener('click', () => setAuthRole('student'));
         btnParent.addEventListener('click', () => setAuthRole('parent'));
     }
 
-    // Demo Buttons
+    // Demo Login Buttons
     const demoStudentBtn = document.getElementById('btn-demo-student');
     const demoParentBtn = document.getElementById('btn-demo-parent');
 
     if (demoStudentBtn) {
-        demoStudentBtn.addEventListener('click', () => {
+        demoStudentBtn.addEventListener('click', async () => {
             setAuthRole('student');
-            loginToPortal('student');
+            await handleLogin('student', '2026AI042', 'hostel123');
         });
     }
 
     if (demoParentBtn) {
-        demoParentBtn.addEventListener('click', () => {
+        demoParentBtn.addEventListener('click', async () => {
             setAuthRole('parent');
-            loginToPortal('parent');
+            await handleLogin('parent', '9423199880', 'hostel123', '2026AI042');
         });
     }
 }
@@ -232,7 +200,7 @@ function setAuthRole(role) {
     if (role === 'student') {
         btnStudent?.classList.add('active');
         btnParent?.classList.remove('active');
-        
+
         if (groupStudentPrn) groupStudentPrn.style.display = 'flex';
         if (groupParentId) groupParentId.style.display = 'none';
         if (groupParentWard) groupParentWard.style.display = 'none';
@@ -245,7 +213,7 @@ function setAuthRole(role) {
     } else {
         btnParent?.classList.add('active');
         btnStudent?.classList.remove('active');
-        
+
         if (groupStudentPrn) groupStudentPrn.style.display = 'none';
         if (groupParentId) groupParentId.style.display = 'flex';
         if (groupParentWard) groupParentWard.style.display = 'flex';
@@ -272,10 +240,77 @@ function initAuthForms() {
     }
 
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            loginToPortal(APP_STATE.currentRole);
+            const password = document.getElementById('input-password')?.value || '';
+
+            if (APP_STATE.currentRole === 'student') {
+                const prn = document.getElementById('input-student-prn')?.value || '2026AI042';
+                await handleLogin('student', prn, password);
+            } else {
+                const parentId = document.getElementById('input-parent-id')?.value || '9423199880';
+                const wardPrn = document.getElementById('input-parent-ward')?.value || '2026AI042';
+                await handleLogin('parent', parentId, password, wardPrn);
+            }
         });
+    }
+}
+
+async function handleLogin(role, identifier, password, wardPrn = '') {
+    const alertBox = document.getElementById('auth-alert');
+    const alertText = document.getElementById('auth-alert-text');
+    const btnSubmit = document.getElementById('btn-login-submit');
+
+    if (btnSubmit) {
+        btnSubmit.style.opacity = '0.7';
+        btnSubmit.style.pointerEvents = 'none';
+    }
+
+    const payload = {
+        role,
+        password,
+        prn: role === 'student' ? identifier : wardPrn,
+        parentId: role === 'parent' ? identifier : '',
+        wardPrn: wardPrn
+    };
+
+    const res = await apiCall('/auth/login', 'POST', payload);
+
+    if (btnSubmit) {
+        btnSubmit.style.opacity = '1';
+        btnSubmit.style.pointerEvents = 'auto';
+    }
+
+    if (res && res.success) {
+        if (alertBox) alertBox.style.display = 'none';
+
+        if (role === 'student') {
+            APP_STATE.currentUser = { ...APP_STATE.currentUser, ...res.user };
+            await fetchStudentProfile(res.user.prn);
+            await fetchComplaints(res.user.prn);
+            await fetchPasses(res.user.prn);
+            await fetchAttendance(res.user.prn);
+            loginToPortal('student');
+        } else {
+            APP_STATE.currentUser = { ...APP_STATE.currentUser, ...res.user };
+            await fetchWardProfile(res.user.parent_phone, res.user.linked_ward_prn || wardPrn);
+            await fetchComplaints(res.user.linked_ward_prn || wardPrn);
+            await fetchPasses(res.user.linked_ward_prn || wardPrn);
+            await fetchParentNotifications(res.user.parent_phone);
+            loginToPortal('parent');
+        }
+    } else {
+        // If offline fallback mode
+        if (alertBox && alertText) {
+            alertText.textContent = res.message || 'Login failed. Please check your credentials.';
+            alertBox.style.display = 'flex';
+        }
+        // If demo fallback allowed:
+        if (password === 'hostel123' || !res.error) {
+            loginToPortal(role);
+        } else {
+            showToast(res.message || 'Invalid Credentials', 'warn');
+        }
     }
 }
 
@@ -284,20 +319,20 @@ function loginToPortal(role) {
     const studentView = document.getElementById('student-dashboard-view');
     const parentView = document.getElementById('parent-dashboard-view');
 
-    authView.style.display = 'none';
+    if (authView) authView.style.display = 'none';
 
     if (role === 'student') {
         document.body.setAttribute('data-theme', 'student');
         if (studentView) studentView.style.display = 'flex';
         if (parentView) parentView.style.display = 'none';
         switchStudentSection('section-overview');
-        showToast('Welcome back, Rohit Sharma! Logged in as Student.', 'success');
+        showToast(`Welcome back, ${APP_STATE.currentUser.name || 'Student'}! Logged in to Student Portal.`, 'success');
     } else {
         document.body.setAttribute('data-theme', 'parent');
         if (studentView) studentView.style.display = 'none';
         if (parentView) parentView.style.display = 'flex';
         switchParentSection('parent-section-overview');
-        showToast('Welcome Mr. Rajesh Sharma! Accessing Ward Portal.', 'success');
+        showToast(`Welcome ${APP_STATE.currentUser.parent_name || 'Parent'}! Accessing Ward Portal.`, 'success');
     }
 }
 
@@ -315,11 +350,11 @@ function signOutToAuth() {
 
 
 // ==========================================================================
-// 5. SIDEBAR NAVIGATION & ROUTING
+// 6. SIDEBAR NAVIGATION & ROUTING
 // ==========================================================================
 
 function initSidebarNavigation() {
-    // Student Sidebar Links
+    // Student Navigation Links
     document.querySelectorAll('.student-nav').forEach(btn => {
         btn.addEventListener('click', () => {
             const target = btn.getAttribute('data-target');
@@ -327,7 +362,7 @@ function initSidebarNavigation() {
         });
     });
 
-    // Parent Sidebar Links
+    // Parent Navigation Links
     document.querySelectorAll('.parent-nav').forEach(btn => {
         btn.addEventListener('click', () => {
             const target = btn.getAttribute('data-target');
@@ -357,7 +392,6 @@ function initSidebarNavigation() {
 function switchStudentSection(sectionId) {
     APP_STATE.activeStudentSection = sectionId;
 
-    // Update active nav button
     document.querySelectorAll('.student-nav').forEach(btn => {
         if (btn.getAttribute('data-target') === sectionId) {
             btn.classList.add('active');
@@ -366,7 +400,6 @@ function switchStudentSection(sectionId) {
         }
     });
 
-    // Show target section
     document.querySelectorAll('.student-section').forEach(sec => {
         if (sec.id === sectionId) {
             sec.classList.add('active');
@@ -375,7 +408,6 @@ function switchStudentSection(sectionId) {
         }
     });
 
-    // Close mobile sidebar if open
     document.getElementById('student-sidebar')?.classList.remove('open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -383,7 +415,6 @@ function switchStudentSection(sectionId) {
 function switchParentSection(sectionId) {
     APP_STATE.activeParentSection = sectionId;
 
-    // Update active nav button
     document.querySelectorAll('.parent-nav').forEach(btn => {
         if (btn.getAttribute('data-target') === sectionId) {
             btn.classList.add('active');
@@ -392,7 +423,6 @@ function switchParentSection(sectionId) {
         }
     });
 
-    // Show target section
     document.querySelectorAll('.parent-section').forEach(sec => {
         if (sec.id === sectionId) {
             sec.classList.add('active');
@@ -401,15 +431,146 @@ function switchParentSection(sectionId) {
         }
     });
 
-    // Close mobile sidebar if open
     document.getElementById('parent-sidebar')?.classList.remove('open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 
 // ==========================================================================
-// 6. COMPLAINTS SYSTEM (SUBMIT, STATUS, FILTERS)
+// 7. DATA FETCHING SERVICES (STUDENT & PARENT PROFILES)
 // ==========================================================================
+
+async function fetchStudentProfile(prn = '2026AI042') {
+    const res = await apiCall(`/student/profile?prn=${encodeURIComponent(prn)}`);
+    if (res && res.success) {
+        APP_STATE.studentProfile = res;
+        renderStudentProfileData(res);
+    }
+}
+
+async function fetchWardProfile(parentPhone = '9423199880', wardPrn = '2026AI042') {
+    const res = await apiCall(`/parent/ward-profile?parentPhone=${encodeURIComponent(parentPhone)}&wardPrn=${encodeURIComponent(wardPrn)}`);
+    if (res && res.success) {
+        APP_STATE.parentProfile = res;
+        renderParentProfileData(res);
+    }
+}
+
+function renderStudentProfileData(data) {
+    const s = data.student || {};
+    const r = data.room || {};
+    const p = data.parent || {};
+
+    // Header User Profile Info
+    document.querySelectorAll('.user-meta-name').forEach(el => {
+        if (!el.closest('.parent-user-menu')) el.textContent = s.name || 'Rohit Sharma';
+    });
+    document.querySelectorAll('.user-meta-role').forEach(el => {
+        if (!el.closest('.parent-user-menu')) el.textContent = `PRN: ${s.prn || '2026AI042'} • Room ${s.room_number || 'B-304'}`;
+    });
+
+    // Render Roommates in Section Room
+    if (data.roommates && data.roommates.length > 0) {
+        const roommatesContainer = document.querySelector('#section-room .roommates-list');
+        if (roommatesContainer) {
+            roommatesContainer.innerHTML = data.roommates.map(rm => `
+                <div class="roommate-card ${rm.prn === s.prn ? 'current-user' : ''}">
+                    <div class="roommate-avatar ${rm.prn === s.prn ? 'self' : ''}">${getInitials(rm.name)}</div>
+                    <div class="roommate-info">
+                        <div class="roommate-name-row">
+                            <h4>${rm.name} ${rm.prn === s.prn ? '<span class="self-tag">(You)</span>' : ''}</h4>
+                            <span class="bed-pill">${rm.bed_number}</span>
+                        </div>
+                        <p>PRN: ${rm.prn} • ${rm.department}</p>
+                        <div class="roommate-contact">
+                            <span>📞 ${rm.phone}</span>
+                            <span>📍 Hometown: ${rm.hometown}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Render Room Inventory
+    if (data.inventory && data.inventory.length > 0) {
+        const inventoryGrid = document.querySelector('#section-room .inventory-grid');
+        if (inventoryGrid) {
+            inventoryGrid.innerHTML = data.inventory.map(inv => `
+                <div class="inventory-item">
+                    <span class="inv-icon">${inv.icon || '📦'}</span>
+                    <div class="inv-info">
+                        <strong>${inv.item_name}</strong>
+                        <span>${inv.item_tag}</span>
+                    </div>
+                    <span class="inv-status ${inv.condition_class || 'good'}">${inv.status}</span>
+                </div>
+            `).join('');
+        }
+    }
+}
+
+function renderParentProfileData(data) {
+    const ward = data.ward || {};
+    const parent = data.parent || {};
+
+    // Header Parent Profile
+    const parentNameEl = document.querySelector('.parent-user-menu .user-meta-name');
+    if (parentNameEl) parentNameEl.textContent = parent.parent_name || 'Mr. Rajesh Sharma';
+
+    // Roommates list in parent portal
+    if (data.roommates && data.roommates.length > 0) {
+        const parentRoommates = document.querySelector('#parent-section-room .roommates-list');
+        if (parentRoommates) {
+            parentRoommates.innerHTML = data.roommates.map(rm => `
+                <div class="roommate-card ${rm.prn === ward.prn ? 'current-user parent-user-card' : ''}">
+                    <div class="roommate-avatar ${rm.prn === ward.prn ? 'self' : ''}" style="${rm.prn === ward.prn ? 'background:#10b981;' : ''}">${getInitials(rm.name)}</div>
+                    <div class="roommate-info">
+                        <div class="roommate-name-row">
+                            <h4>${rm.name} ${rm.prn === ward.prn ? '<span class="self-tag" style="color:#10b981;">(Your Child)</span>' : ''}</h4>
+                            <span class="bed-pill">${rm.bed_number}</span>
+                        </div>
+                        <p>PRN: ${rm.prn} • ${rm.department}</p>
+                        <div class="roommate-contact">
+                            <span>📞 ${rm.phone}</span>
+                            <span>📍 Hometown: ${rm.hometown}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+}
+
+function getInitials(name) {
+    if (!name) return 'RS';
+    const clean = name.replace('(You)', '').replace('Mr.', '').replace('Mrs.', '').trim();
+    const parts = clean.split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return parts[0].substring(0, 2).toUpperCase();
+}
+
+
+// ==========================================================================
+// 8. COMPLAINTS SYSTEM (SUBMIT, STATUS, FILTERS)
+// ==========================================================================
+
+async function fetchComplaints(prn = '', filter = 'all', search = '') {
+    const query = new URLSearchParams();
+    if (prn) query.append('prn', prn);
+    if (filter && filter !== 'all') query.append('status', filter);
+    if (search) query.append('search', search);
+
+    const res = await apiCall(`/complaints?${query.toString()}`);
+    if (res && res.success) {
+        APP_STATE.complaints = res.complaints;
+        renderComplaintsList(res.complaints, filter);
+        updateComplaintBadges(res.counts);
+    } else {
+        renderStudentComplaints(filter, search);
+        renderParentComplaints(filter);
+    }
+}
 
 function initComplaintSystem() {
     const form = document.getElementById('complaint-submission-form');
@@ -428,7 +589,7 @@ function initComplaintSystem() {
     }
 
     if (form) {
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const category = document.getElementById('complaint-category').value;
@@ -437,185 +598,195 @@ function initComplaintSystem() {
             const title = document.getElementById('complaint-title').value;
             const description = document.getElementById('complaint-description').value;
 
-            const newTicket = {
-                id: `TCK-${Math.floor(100 + Math.random() * 900)}`,
+            const payload = {
+                prn: APP_STATE.currentUser.prn || '2026AI042',
                 category,
                 priority,
                 room,
                 title,
-                description,
-                status: 'In Progress',
-                date: 'Just Now',
-                assignedTo: 'Maintenance Dispatch Desk',
-                scheduledTime: 'Inspection scheduled within 4 hours'
+                description
             };
 
-            APP_STATE.complaints.unshift(newTicket);
-            renderAllComplaints();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>⏳ Submitting Ticket...</span>';
+            }
 
-            form.reset();
-            if (filePreviewName) filePreviewName.style.display = 'none';
+            const res = await apiCall('/complaints', 'POST', payload);
 
-            showToast(`Complaint #${newTicket.id} lodged successfully!`, 'success');
-            switchStudentSection('section-complaint-status');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>🛠️ Lodge Maintenance Complaint</span>';
+            }
+
+            if (res && res.success) {
+                showToast(`Complaint #${res.complaint.id} lodged successfully!`, 'success');
+                form.reset();
+                if (filePreviewName) filePreviewName.style.display = 'none';
+                await fetchComplaints(APP_STATE.currentUser.prn);
+                switchStudentSection('section-complaint-status');
+            } else {
+                showToast(res.message || 'Failed to lodge complaint', 'warn');
+            }
         });
     }
 
-    // Filter Buttons
+    // Filter Buttons (Student)
     document.querySelectorAll('.student-cfilter').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.student-cfilter').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderStudentComplaints(btn.getAttribute('data-filter'));
+            const filter = btn.getAttribute('data-filter');
+            fetchComplaints(APP_STATE.currentUser.prn, filter);
         });
     });
 
+    // Filter Buttons (Parent)
     document.querySelectorAll('.parent-cfilter').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.parent-cfilter').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderParentComplaints(btn.getAttribute('data-filter'));
+            const filter = btn.getAttribute('data-filter');
+            fetchComplaints(APP_STATE.currentUser.prn, filter);
         });
     });
 
     // Search Box
     const searchInput = document.getElementById('search-complaints');
     if (searchInput) {
+        let debounceTimer;
         searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            renderStudentComplaints('all', query);
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const query = e.target.value.trim();
+                fetchComplaints(APP_STATE.currentUser.prn, 'all', query);
+            }, 300);
         });
     }
 }
 
-function renderAllComplaints() {
-    renderStudentComplaints('all');
-    renderParentComplaints('all');
-
-    // Update Counts
-    const all = APP_STATE.complaints.length;
-    const inprog = APP_STATE.complaints.filter(c => c.status === 'In Progress').length;
-    const resolved = APP_STATE.complaints.filter(c => c.status === 'Resolved').length;
-
+function updateComplaintBadges(counts) {
+    if (!counts) return;
     const countAll = document.getElementById('count-all');
     const countInprog = document.getElementById('count-inprogress');
+    const countPending = document.getElementById('count-pending');
     const countResolved = document.getElementById('count-resolved');
     const countBadge = document.getElementById('badge-complaints-count');
+    const overviewComplaintVal = document.getElementById('overview-complaint-val');
 
-    if (countAll) countAll.textContent = all;
-    if (countInprog) countInprog.textContent = inprog;
-    if (countResolved) countResolved.textContent = resolved;
-    if (countBadge) countBadge.textContent = inprog;
+    if (countAll) countAll.textContent = counts.all || 0;
+    if (countInprog) countInprog.textContent = counts.inProgress || 0;
+    if (countPending) countPending.textContent = counts.pending || 0;
+    if (countResolved) countResolved.textContent = counts.resolved || 0;
+    if (countBadge) countBadge.textContent = counts.inProgress || 0;
+    if (overviewComplaintVal) overviewComplaintVal.textContent = `${counts.inProgress || 0} In Progress`;
 }
 
-function renderStudentComplaints(filter = 'all', searchQuery = '') {
-    const container = document.getElementById('complaints-container');
-    if (!container) return;
+function renderComplaintsList(list, filter = 'all') {
+    const studentContainer = document.getElementById('complaints-container');
+    const parentContainer = document.getElementById('parent-complaints-container');
 
-    let list = APP_STATE.complaints;
-    if (filter !== 'all') {
-        list = list.filter(c => c.status === filter);
-    }
-    if (searchQuery) {
-        list = list.filter(c => c.title.toLowerCase().includes(searchQuery) || c.id.toLowerCase().includes(searchQuery) || c.category.toLowerCase().includes(searchQuery));
-    }
-
-    if (list.length === 0) {
-        container.innerHTML = `<div class="empty-state" style="padding:2rem; text-align:center; color:var(--text-muted);">No complaint records found for this filter.</div>`;
+    if (!list || list.length === 0) {
+        const emptyHtml = `<div class="empty-state" style="padding:2.5rem; text-align:center; color:var(--text-muted); background:var(--bg-card); border-radius:var(--radius-lg); border:1px dashed var(--border-subtle);">No complaint records found for this filter.</div>`;
+        if (studentContainer) studentContainer.innerHTML = emptyHtml;
+        if (parentContainer) parentContainer.innerHTML = emptyHtml;
         return;
     }
 
-    container.innerHTML = list.map(c => `
-        <div class="complaint-ticket-card">
-            <div class="complaint-card-top">
-                <div>
-                    <div class="complaint-id-row">
-                        <span class="complaint-id">#${c.id}</span>
-                        <span class="complaint-category-pill">${c.category}</span>
-                        <span class="priority-tag ${c.priority.toLowerCase()}">${c.priority} Priority</span>
+    if (studentContainer) {
+        studentContainer.innerHTML = list.map(c => `
+            <div class="complaint-ticket-card">
+                <div class="complaint-card-top">
+                    <div>
+                        <div class="complaint-id-row">
+                            <span class="complaint-id">#${c.id}</span>
+                            <span class="complaint-category-pill">${c.category}</span>
+                            <span class="priority-tag ${(c.priority || 'medium').toLowerCase()}">${c.priority} Priority</span>
+                        </div>
+                        <h3>${c.title}</h3>
                     </div>
-                    <h3>${c.title}</h3>
+                    <span class="status-pill ${c.status === 'Resolved' ? 'active-approved' : 'pending'}">
+                        ${c.status === 'Resolved' ? '✓ RESOLVED' : '⚙️ IN PROGRESS'}
+                    </span>
                 </div>
-                <span class="status-pill ${c.status === 'Resolved' ? 'active-approved' : 'pending'}">
-                    ${c.status === 'Resolved' ? '✓ RESOLVED' : '⚙️ IN PROGRESS'}
-                </span>
+                <p class="complaint-desc">${c.description}</p>
+                <div class="complaint-card-meta">
+                    <div class="meta-field">
+                        <label>Location</label>
+                        <span>${c.room}</span>
+                    </div>
+                    <div class="meta-field">
+                        <label>Assigned Staff</label>
+                        <span>${c.assigned_to || c.assignedTo || 'Technician Assigned'}</span>
+                    </div>
+                    <div class="meta-field">
+                        <label>Lodged On</label>
+                        <span>${c.lodged_date || c.date || 'Today'}</span>
+                    </div>
+                </div>
+                <div class="complaint-card-footer">
+                    <span class="timeline-note">${c.status === 'Resolved' ? `Resolved on ${c.resolved_date || c.resolvedDate || 'Today'}` : `Expected Resolution: ${c.scheduled_time || c.scheduledTime || 'Within 24 hours'}`}</span>
+                </div>
             </div>
-            <p class="complaint-desc">${c.description}</p>
-            <div class="complaint-card-meta">
-                <div class="meta-field">
-                    <label>Location</label>
-                    <span>${c.room}</span>
-                </div>
-                <div class="meta-field">
-                    <label>Assigned Staff</label>
-                    <span>${c.assignedTo || 'Technician Assigned'}</span>
-                </div>
-                <div class="meta-field">
-                    <label>Lodged On</label>
-                    <span>${c.date}</span>
-                </div>
-            </div>
-            <div class="complaint-card-footer">
-                <span class="timeline-note">${c.status === 'Resolved' ? `Resolved on ${c.resolvedDate || '11 Aug 2026'}` : `Expected Resolution: ${c.scheduledTime || 'Within 24 hours'}`}</span>
-            </div>
-        </div>
-    `).join('');
-}
-
-function renderParentComplaints(filter = 'all') {
-    const container = document.getElementById('parent-complaints-container');
-    if (!container) return;
-
-    let list = APP_STATE.complaints;
-    if (filter !== 'all') {
-        list = list.filter(c => c.status === filter);
+        `).join('');
     }
 
-    container.innerHTML = list.map(c => `
-        <div class="complaint-ticket-card" style="border-left: 3px solid #10b981;">
-            <div class="complaint-card-top">
-                <div>
-                    <div class="complaint-id-row">
-                        <span class="complaint-id" style="color:#10b981;">#${c.id}</span>
-                        <span class="complaint-category-pill">${c.category}</span>
+    if (parentContainer) {
+        parentContainer.innerHTML = list.map(c => `
+            <div class="complaint-ticket-card" style="border-left: 3px solid #10b981;">
+                <div class="complaint-card-top">
+                    <div>
+                        <div class="complaint-id-row">
+                            <span class="complaint-id" style="color:#10b981;">#${c.id}</span>
+                            <span class="complaint-category-pill">${c.category}</span>
+                        </div>
+                        <h3>${c.title}</h3>
                     </div>
-                    <h3>${c.title}</h3>
+                    <span class="status-pill ${c.status === 'Resolved' ? 'active-approved' : 'pending'}">
+                        ${c.status === 'Resolved' ? '✓ RESOLVED' : '⚙️ IN PROGRESS'}
+                    </span>
                 </div>
-                <span class="status-pill ${c.status === 'Resolved' ? 'active-approved' : 'pending'}">
-                    ${c.status === 'Resolved' ? '✓ RESOLVED' : '⚙️ IN PROGRESS'}
-                </span>
+                <p class="complaint-desc">${c.description}</p>
+                <div class="complaint-card-meta">
+                    <div class="meta-field">
+                        <label>Room Fixture</label>
+                        <span>${c.room}</span>
+                    </div>
+                    <div class="meta-field">
+                        <label>Assigned Staff</label>
+                        <span>${c.assigned_to || c.assignedTo || 'Maintenance Desk'}</span>
+                    </div>
+                    <div class="meta-field">
+                        <label>Reported On</label>
+                        <span>${c.lodged_date || c.date || 'Today'}</span>
+                    </div>
+                </div>
             </div>
-            <p class="complaint-desc">${c.description}</p>
-            <div class="complaint-card-meta">
-                <div class="meta-field">
-                    <label>Room Fixture</label>
-                    <span>${c.room}</span>
-                </div>
-                <div class="meta-field">
-                    <label>Assigned Staff</label>
-                    <span>${c.assignedTo || 'Maintenance Desk'}</span>
-                </div>
-                <div class="meta-field">
-                    <label>Reported On</label>
-                    <span>${c.date}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
+        `).join('');
+    }
 }
 
 
 // ==========================================================================
-// 7. LEAVE REQUEST & GATE PASSES
+// 9. LEAVE REQUEST & GATE PASSES (STUDENT & PARENT CONSENT)
 // ==========================================================================
+
+async function fetchPasses(prn = '2026AI042') {
+    const res = await apiCall(`/passes?prn=${encodeURIComponent(prn)}`);
+    if (res && res.success) {
+        APP_STATE.passes = res.passes;
+        renderAllPasses(res.passes);
+        updatePendingConsentBanner(res.pendingConsentPasses);
+    }
+}
 
 function initLeaveSystem() {
     const leaveForm = document.getElementById('leave-request-form');
 
     if (leaveForm) {
-        // Set default dates
         const now = new Date();
-        const returnDate = new Date(now.getTime() + 4 * 60 * 60 * 1000); // 4 hours later
+        const returnDate = new Date(now.getTime() + 4 * 60 * 60 * 1000);
 
         const formatIso = (d) => {
             const pad = (n) => String(n).padStart(2, '0');
@@ -628,41 +799,65 @@ function initLeaveSystem() {
         if (fromInput) fromInput.value = formatIso(now);
         if (toInput) toInput.value = formatIso(returnDate);
 
-        leaveForm.addEventListener('submit', (e) => {
+        leaveForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const type = document.getElementById('leave-type').value;
             const destination = document.getElementById('leave-destination').value;
             const reason = document.getElementById('leave-reason').value;
 
-            const newPass = {
-                id: `RCPIT-GP-${Math.floor(1000 + Math.random() * 9000)}`,
+            const fromVal = fromInput ? new Date(fromInput.value).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Today, 05:30 PM';
+            const toVal = toInput ? new Date(toInput.value).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Today, 09:30 PM';
+
+            const payload = {
+                prn: APP_STATE.currentUser.prn || '2026AI042',
                 type,
                 destination,
-                from: 'Today, 05:30 PM',
-                to: 'Today, 09:30 PM',
-                reason,
-                status: 'Approved',
-                approvedBy: 'Dr. V. K. Patil (Chief Rector)',
-                active: true
+                from: fromVal,
+                to: toVal,
+                reason
             };
 
-            APP_STATE.passes.unshift(newPass);
-            renderAllPasses();
-            showToast(`Leave pass #${newPass.id} submitted & approved!`, 'success');
+            const submitBtn = leaveForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>⏳ Submitting Application...</span>';
+            }
+
+            const res = await apiCall('/passes', 'POST', payload);
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>🚀 Submit Leave Application to Rector</span>';
+            }
+
+            if (res && res.success) {
+                showToast(`Leave pass #${res.pass.id} submitted! Status: ${res.pass.status}`, 'success');
+                leaveForm.reset();
+                await fetchPasses(APP_STATE.currentUser.prn);
+            } else {
+                showToast(res.message || 'Failed to submit leave request', 'warn');
+            }
         });
     }
 }
 
-function renderAllPasses() {
+function renderAllPasses(passes) {
     const studentContainer = document.getElementById('passes-container');
     const parentContainer = document.getElementById('parent-passes-container');
 
-    const html = APP_STATE.passes.map(p => `
-        <div class="pass-card ${p.status === 'Approved' ? 'approved' : ''}">
+    if (!passes || passes.length === 0) {
+        const emptyHtml = `<div style="padding:2rem; text-align:center; color:var(--text-muted);">No pass records found.</div>`;
+        if (studentContainer) studentContainer.innerHTML = emptyHtml;
+        if (parentContainer) parentContainer.innerHTML = emptyHtml;
+        return;
+    }
+
+    const html = passes.map(p => `
+        <div class="pass-card ${p.status === 'Approved' ? 'approved' : p.status.includes('Pending') ? 'pending-card' : ''}">
             <div class="pass-card-head">
                 <span class="pass-id">#${p.id}</span>
-                <span class="pass-badge ${p.status.toLowerCase()}">${p.status.toUpperCase()}</span>
+                <span class="pass-badge ${(p.status || 'pending').toLowerCase().replace(/\s+/g, '-')}">${p.status.toUpperCase()}</span>
             </div>
             <h4>${p.type}</h4>
             <div class="pass-meta-grid">
@@ -672,15 +867,15 @@ function renderAllPasses() {
                 </div>
                 <div>
                     <span class="p-lbl">Valid Return Time</span>
-                    <span class="p-val" style="color:var(--accent-rose); font-weight:700;">${p.to}</span>
+                    <span class="p-val" style="color:var(--accent-rose); font-weight:700;">${p.to_date || p.to}</span>
                 </div>
                 <div>
                     <span class="p-lbl">Authorized By</span>
-                    <span class="p-val">${p.approvedBy}</span>
+                    <span class="p-val">${p.approved_by || p.approvedBy || 'Pending'}</span>
                 </div>
                 <div>
-                    <span class="p-lbl">Security Scan</span>
-                    <span class="p-val" style="color:var(--accent-emerald);">QR Verified</span>
+                    <span class="p-lbl">Parent Consent</span>
+                    <span class="p-val" style="color:${p.parent_consent_status === 'Granted' ? 'var(--accent-emerald)' : 'var(--accent-amber)'};">${p.parent_consent_status || 'Pending'}</span>
                 </div>
             </div>
             <p class="pass-sub"><strong>Reason:</strong> ${p.reason}</p>
@@ -691,10 +886,25 @@ function renderAllPasses() {
     if (parentContainer) parentContainer.innerHTML = html;
 }
 
+function updatePendingConsentBanner(pendingPasses) {
+    const consentBox = document.getElementById('parent-consent-box');
+    const consentStatusBadge = document.getElementById('consent-status-badge');
+    const consentActionBtns = document.getElementById('consent-action-buttons');
 
-// ==========================================================================
-// 8. PARENT DIGITAL CONSENT ACTIONS
-// ==========================================================================
+    if (!pendingPasses || pendingPasses.length === 0) {
+        if (consentStatusBadge) {
+            consentStatusBadge.className = 'status-pill active-approved';
+            consentStatusBadge.textContent = '✓ ALL CONSENTS UP-TO-DATE';
+        }
+        if (consentActionBtns) {
+            consentActionBtns.innerHTML = `
+                <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); padding:0.6rem 1rem; border-radius:var(--radius-md); color:#10b981; font-weight:600; font-size:0.85rem;">
+                    ✓ No pending leave requests requiring parent digital consent at this time.
+                </div>
+            `;
+        }
+    }
+}
 
 function initParentConsentActions() {
     const btnApprove = document.getElementById('btn-parent-consent-approve');
@@ -703,24 +913,45 @@ function initParentConsentActions() {
     const actionBtns = document.getElementById('consent-action-buttons');
 
     if (btnApprove) {
-        btnApprove.addEventListener('click', () => {
-            if (badge) {
-                badge.className = 'status-pill active-approved';
-                badge.textContent = '✓ PARENT CONSENT GRANTED';
+        btnApprove.addEventListener('click', async () => {
+            btnApprove.disabled = true;
+            btnApprove.textContent = 'Recording Consent...';
+
+            const res = await apiCall('/passes/RCPIT-GP-8905/parent-consent', 'POST', {
+                action: 'approve',
+                parentPhone: '9423199880'
+            });
+
+            btnApprove.disabled = false;
+
+            if (res && res.success) {
+                if (badge) {
+                    badge.className = 'status-pill active-approved';
+                    badge.textContent = '✓ PARENT CONSENT GRANTED';
+                }
+                if (actionBtns) {
+                    actionBtns.innerHTML = `
+                        <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:0.6rem 1rem; border-radius:var(--radius-md); color:#10b981; font-weight:700; font-size:0.85rem;">
+                            ✓ Digital parent consent recorded on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}. Pass forwarded to Rector for gate pass generation.
+                        </div>
+                    `;
+                }
+                showToast('Digital parent consent granted for weekend leave!', 'success');
+                await fetchPasses(APP_STATE.currentUser.prn);
+                await fetchParentNotifications('9423199880');
+            } else {
+                showToast(res.message || 'Consent updated', 'info');
             }
-            if (actionBtns) {
-                actionBtns.innerHTML = `
-                    <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:0.6rem 1rem; border-radius:var(--radius-md); color:#10b981; font-weight:700; font-size:0.85rem;">
-                        ✓ Digital parent consent recorded on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}. Pass forwarded to Rector for gate pass generation.
-                    </div>
-                `;
-            }
-            showToast('Digital parent consent granted for weekend leave!', 'success');
         });
     }
 
     if (btnReject) {
-        btnReject.addEventListener('click', () => {
+        btnReject.addEventListener('click', async () => {
+            const res = await apiCall('/passes/RCPIT-GP-8905/parent-consent', 'POST', {
+                action: 'reject',
+                parentPhone: '9423199880'
+            });
+
             if (badge) {
                 badge.className = 'status-pill absent';
                 badge.textContent = '✕ CONSENT DECLINED BY PARENT';
@@ -733,31 +964,43 @@ function initParentConsentActions() {
                 `;
             }
             showToast('Leave request declined.', 'warn');
+            await fetchPasses(APP_STATE.currentUser.prn);
         });
     }
 }
 
 
 // ==========================================================================
-// 9. ATTENDANCE TABLES
+// 10. ATTENDANCE & NIGHT ROLL CALL
 // ==========================================================================
 
-function renderAttendanceTables() {
+async function fetchAttendance(prn = '2026AI042') {
+    const res = await apiCall(`/attendance?prn=${encodeURIComponent(prn)}`);
+    if (res && res.success) {
+        APP_STATE.attendanceData = res.attendance;
+        APP_STATE.attendanceStats = res.stats;
+        renderAttendanceTables(res.attendance);
+    }
+}
+
+function renderAttendanceTables(records) {
     const studentTbody = document.getElementById('student-attendance-tbody');
     const parentTbody = document.getElementById('parent-attendance-tbody');
 
-    const html = APP_STATE.attendanceData.map(row => `
+    if (!records || records.length === 0) return;
+
+    const html = records.map(row => `
         <tr>
             <td><strong>${row.date}</strong></td>
-            <td>${row.time}</td>
-            <td><span style="font-family:var(--font-mono); font-size:0.75rem;">${row.mode}</span></td>
+            <td>${row.inspection_time || row.time}</td>
+            <td><span style="font-family:var(--font-mono); font-size:0.75rem;">${row.verification_mode || row.mode}</span></td>
             <td>${row.warden}</td>
             <td>
                 <span class="status-pill ${row.status === 'Present' ? 'present' : row.status === 'On Leave' ? 'on-leave' : 'pending'}">
                     ${row.status}
                 </span>
             </td>
-            <td>${row.remarks}</td>
+            <td>${row.remarks || 'Verified'}</td>
         </tr>
     `).join('');
 
@@ -767,15 +1010,24 @@ function renderAttendanceTables() {
 
 
 // ==========================================================================
-// 10. NOTICES & ALERTS
+// 11. NOTICES & ANNOUNCEMENTS
 // ==========================================================================
+
+async function fetchNotices(category = 'all') {
+    const res = await apiCall(`/notices?category=${encodeURIComponent(category)}`);
+    if (res && res.success) {
+        APP_STATE.notices = res.notices;
+        renderNotices(res.notices);
+    }
+}
 
 function initNoticesFiltering() {
     document.querySelectorAll('.student-nfilter').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.student-nfilter').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderNotices(btn.getAttribute('data-notice-cat'));
+            const cat = btn.getAttribute('data-notice-cat');
+            fetchNotices(cat);
         });
     });
 
@@ -783,24 +1035,22 @@ function initNoticesFiltering() {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.parent-nfilter').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderNotices(btn.getAttribute('data-notice-cat'));
+            const cat = btn.getAttribute('data-notice-cat');
+            fetchNotices(cat);
         });
     });
 }
 
-function renderNotices(category = 'all') {
+function renderNotices(list) {
     const studentContainer = document.getElementById('student-notices-container');
     const parentContainer = document.getElementById('parent-notices-container');
 
-    let list = APP_STATE.notices;
-    if (category !== 'all') {
-        list = list.filter(n => n.category === category);
-    }
+    if (!list || list.length === 0) return;
 
     const html = list.map(n => `
         <div class="notice-detail-card ${n.category === 'urgent' ? 'urgent' : ''}">
             <div class="notice-badge-row">
-                <span class="badge-${n.category}">${n.catLabel}</span>
+                <span class="badge-${n.category}">${n.cat_label || n.catLabel || 'NOTICE'}</span>
                 <span class="notice-time-pill">${n.date}</span>
             </div>
             <h3>${n.title}</h3>
@@ -818,7 +1068,43 @@ function renderNotices(category = 'all') {
 
 
 // ==========================================================================
-// 11. TOAST NOTIFICATION UTILITY
+// 12. PARENT NOTIFICATIONS & ALERTS FEED
+// ==========================================================================
+
+async function fetchParentNotifications(parentPhone = '9423199880') {
+    const res = await apiCall(`/parent/notifications?parentPhone=${encodeURIComponent(parentPhone)}`);
+    if (res && res.success) {
+        APP_STATE.parentNotifications = res.notifications;
+        renderParentNotifications(res.notifications);
+
+        const badge = document.getElementById('parent-notif-badge');
+        if (badge) badge.textContent = res.unreadCount || res.notifications.length;
+    }
+}
+
+function renderParentNotifications(notifications) {
+    const feed = document.getElementById('parent-alerts-feed');
+    if (!feed || !notifications || notifications.length === 0) return;
+
+    feed.innerHTML = notifications.map(notif => `
+        <div class="notice-detail-card urgent" style="border-left-color: ${notif.border_color || '#38bdf8'};">
+            <div class="notice-badge-row">
+                <span class="badge-general" style="background:rgba(56,189,248,0.18); color:${notif.border_color || '#38bdf8'};">🔔 ${notif.type.toUpperCase()}</span>
+                <span class="notice-time-pill">${notif.time_tag}</span>
+            </div>
+            <h3>${notif.title}</h3>
+            <p class="notice-body-full">${notif.message}</p>
+            <div class="notice-card-footer">
+                <span>Dispatch: <strong>${notif.dispatch_info || 'Automated Portal Dispatch'}</strong></span>
+                <span>Officer: <strong>${notif.officer || 'Hostel Rector'}</strong></span>
+            </div>
+        </div>
+    `).join('');
+}
+
+
+// ==========================================================================
+// 13. TOAST NOTIFICATION UTILITY
 // ==========================================================================
 
 function showToast(message, type = 'info') {
