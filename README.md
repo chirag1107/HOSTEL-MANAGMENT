@@ -1,4 +1,4 @@
-# RCPIT STUDENT & PARENT HOSTEL MANAGEMENT PORTAL
+# HOSTEL MANAGEMENT APPLICATION
 
 An integrated, role-based hostel management automation suite engineered for **R. C. Patel Institute of Technology, Shirpur**.
 
